@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>La Toscana 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0ede7;color:#1a1a1a;min-height:100vh;}
+
+/* ── SHARED ── */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+.hero{background:linear-gradient(160deg,#1D6A4A 0%,#0F4D36 65%,#083326 100%);padding:1.75rem 1.25rem 1.5rem;}
+.hero-eye{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(225,245,238,.6);margin-bottom:4px;}
+.hero-title{font-size:30px;font-weight:700;color:#E1F5EE;line-height:1.1;}
+.hero-sub{font-size:12px;color:rgba(159,225,203,.75);margin-top:5px;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.pill{background:rgba(255,255,255,.12);border:.5px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:#9FE1CB;}
+
+.tab-bar{background:#fff;border-bottom:1px solid #e5e2db;display:flex;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+.tab-btn{flex:1;padding:11px 0 9px;font-size:12px;font-weight:600;color:#999;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.tab-btn.on{color:#0F6E56;border-bottom-color:#0F6E56;}
+
+.body{padding:12px 12px 3rem;max-width:520px;margin:0 auto;}
+.sec{font-size:10px;font-weight:700;color:#888;letter-spacing:2px;text-transform:uppercase;margin:14px 0 8px 2px;}
+.card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:8px;overflow:hidden;}
+
+/* ── HOME: stat pills ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.stat-box{background:#fff;border-radius:14px;border:1px solid #e8e4dd;padding:14px 14px 12px;}
+.stat-val{font-size:24px;font-weight:700;color:#1a1a1a;}
+.stat-lbl{font-size:11px;color:#888;margin-top:3px;}
+
+/* ── HOME: route overview ── */
+.route-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid #f5f3ef;align-items:flex-start;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s;}
+.route-item:last-child{border-bottom:none;}
+.route-item:active{background:#f7f5f1;}
+.ri-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.ri-dot{width:28px;height:28px;border-radius:50%;background:#0F6E56;color:#E1F5EE;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.ri-dot.transit{background:#f0ede7;color:#888;}
+.ri-line{width:2px;flex:1;background:#d5f0e8;min-height:14px;margin:3px 0;}
+.ri-body{flex:1;padding-bottom:2px;}
+.ri-city{font-size:13px;font-weight:700;color:#1a1a1a;line-height:1.2;}
+.ri-dates{font-size:11px;color:#888;margin-top:1px;}
+.ri-desc{font-size:11px;color:#666;margin-top:3px;line-height:1.4;}
+.ri-km{font-size:10px;font-weight:600;background:#f0ede7;border-radius:6px;padding:1px 7px;color:#555;display:inline-block;margin-top:4px;}
+.ri-arr{font-size:14px;color:#ccc;flex-shrink:0;margin-top:8px;}
+
+/* ── HOME: day grid ── */
+.day-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px;}
+.day-cell{background:#fff;border:1px solid #e8e4dd;border-radius:12px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s;}
+.day-cell:active{background:#e7f5ef;border-color:#0F6E56;}
+.dc-num{font-size:14px;font-weight:700;color:#1a1a1a;}
+.dc-wd{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-top:1px;}
+.dc-date{font-size:9px;color:#aaa;margin-top:1px;}
+.day-chip.active .dc-date{color:rgba(255,255,255,.6);}
+.dc-emoji{font-size:15px;margin-top:3px;}
+.dc-city{font-size:8px;color:#888;margin-top:2px;text-align:center;line-height:1.2;min-height:18px;}
+
+/* ── HOTELS ── */
+.hotel-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:8px;overflow:hidden;}
+.hotel-head{background:#f7f5f1;padding:11px 14px;border-bottom:1px solid #ede9e1;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.hn{font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.3;}
+.hs{font-size:11px;color:#BA7517;margin-top:2px;}
+.hb{background:#e7f5ef;border-radius:8px;padding:3px 9px;font-size:11px;color:#0a4d3c;font-weight:700;flex-shrink:0;white-space:nowrap;}
+.hotel-rows{padding:10px 14px;}
+.hrow{display:flex;gap:9px;font-size:12px;color:#555;padding:5px 0;border-bottom:1px solid #f5f3ef;line-height:1.45;align-items:flex-start;}
+.hrow-link{text-decoration:none;color:#0d3d70;cursor:pointer;}
+.hrow-link:hover{text-decoration:underline;}
+.maps-btn{color:#0F6E56 !important;font-weight:600;}
+.hrow:last-child{border-bottom:none;}
+.hrow a{color:#0F6E56;text-decoration:none;font-weight:600;}
+.hotel-warn{margin:0 14px 12px;background:#fff9ec;border:1px solid #fce8b2;border-radius:9px;padding:8px 10px;font-size:12px;color:#7a5a0a;line-height:1.55;}
+.hotel-price{margin:0 14px 12px;display:flex;justify-content:space-between;align-items:center;padding-top:9px;border-top:1px solid #f0ede7;}
+.hp-l{font-size:11px;color:#999;}
+.hp-v{font-size:18px;font-weight:700;color:#1a1a1a;}
+
+.total-card{background:#0F6E56;border-radius:14px;padding:16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.tc-lbl{font-size:12px;color:rgba(255,255,255,.7);}
+.tc-val{font-size:28px;font-weight:700;color:#fff;}
+.tc-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;}
+.nota{background:#fff9ec;border:1px solid #fce8b2;border-radius:14px;padding:13px;margin-bottom:8px;display:flex;gap:10px;}
+.nota-ic{font-size:18px;flex-shrink:0;}
+.nota-body{font-size:12px;color:#6b4e10;line-height:1.6;}
+.nota-title{font-weight:700;margin-bottom:3px;font-size:12px;}
+
+/* ── DAY SCREEN ── */
+.day-topbar{background:#fff;border-bottom:1px solid #e5e2db;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+.back-btn{display:flex;align-items:center;gap:5px;padding:12px 14px;font-size:13px;font-weight:600;color:#0F6E56;cursor:pointer;flex-shrink:0;border:none;background:transparent;-webkit-tap-highlight-color:transparent;}
+.day-topbar-title{flex:1;font-size:13px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-nav-arrows{display:flex;gap:4px;padding-right:10px;}
+.dna{width:30px;height:30px;border-radius:8px;border:1px solid #e0ddd8;background:transparent;font-size:16px;color:#444;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.dna:disabled{opacity:.3;cursor:default;}
+
+.summary-banner{background:linear-gradient(135deg,#0F6E56 0%,#0a4535 100%);border-radius:16px;padding:16px 16px 14px;margin-bottom:10px;}
+.sb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.sb-dn{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(225,245,238,.65);}
+.sb-dt{font-size:11px;color:rgba(159,225,203,.7);}
+.sb-title{font-size:21px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px;}
+.sb-desc{font-size:12px;color:rgba(159,225,203,.85);line-height:1.55;margin-bottom:12px;}
+.sb-stats{display:flex;gap:8px;flex-wrap:wrap;}
+.sb-stat{background:rgba(255,255,255,.13);border-radius:9px;padding:5px 10px;display:flex;align-items:center;gap:5px;}
+.sb-stat-ic{font-size:13px;}
+.sb-stat-tx{font-size:12px;color:#E1F5EE;font-weight:500;}
+
+.itin-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:8px;overflow:hidden;}
+.itin-item{display:flex;gap:11px;padding:11px 14px;border-bottom:1px solid #f5f3ef;align-items:flex-start;}
+.itin-item:last-child{border-bottom:none;}
+.itin-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ic-green{background:#e7f5ef;}.ic-amber{background:#fef3e2;}.ic-blue{background:#e8f1fb;}.ic-red{background:#fef0f0;}.ic-gray{background:#f0ede7;}
+.itin-name{font-size:13px;font-weight:700;color:#1a1a1a;line-height:1.3;}
+.itin-note{font-size:12px;color:#666;margin-top:3px;line-height:1.5;}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;}
+.tg{background:#e7f5ef;color:#0a4d3c;}.ta{background:#fef3e2;color:#7a5a0a;}.tb{background:#e8f1fb;color:#0d3d70;}.tr{background:#fef0f0;color:#8b2020;}
+.links{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.lnk{font-size:10px;font-weight:600;padding:3px 9px;border-radius:8px;background:#f0ede7;color:#444;text-decoration:none;border:1px solid #e0ddd8;display:inline-flex;align-items:center;gap:3px;}
+.lnk:hover{background:#e7f5ef;color:#0a4d3c;border-color:#0F6E56;}
+.lnk.maps{background:#e8f1fb;color:#0d3d70;border-color:#c5d9f0;}
+.lnk.wiki{background:#f5f3ef;color:#555;border-color:#ddd;}
+
+.route-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:8px;overflow:hidden;}
+.route-hdr{padding:11px 14px 9px;border-bottom:1px solid #f0ede7;display:flex;justify-content:space-between;align-items:center;}
+.route-hdr-l{font-size:13px;font-weight:700;color:#1a1a1a;}
+.route-hdr-r{font-size:11px;color:#888;}
+.route-steps{padding:10px 14px 12px;}
+.rs{display:flex;gap:10px;}
+.rs-line{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.rs-dot{width:10px;height:10px;border-radius:50%;background:#0F6E56;flex-shrink:0;margin-top:3px;}
+.rs-dot.wp{background:#BA7517;width:8px;height:8px;margin-top:4px;}
+.rs-dot.end{background:#c0392b;}
+.rs-dash{width:2px;flex:1;background:#d5f0e8;min-height:20px;}
+.rs-info{flex:1;padding-bottom:12px;}
+.rs-city{font-size:13px;font-weight:700;color:#1a1a1a;}
+.rs-detail{font-size:11px;color:#777;margin-top:2px;line-height:1.4;}
+.rs-km{display:inline-block;background:#f0ede7;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:600;color:#555;margin-top:4px;}
+
+.rest-card{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:8px;overflow:hidden;}
+.rest-head{background:linear-gradient(135deg,#1a3a2a,#0d2a1e);padding:13px 14px;}
+.rest-eye{font-size:9px;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;}
+.rest-name{font-size:16px;font-weight:700;color:#fff;margin-top:2px;}
+.rest-cuisine{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px;}
+.rest-stars{color:#EF9F27;font-size:13px;margin-top:6px;}
+.rest-rating{font-size:11px;color:rgba(255,255,255,.4);}
+.rest-rows{padding:10px 14px;}
+.rrow{display:flex;gap:9px;font-size:13px;color:#333;padding:6px 0;border-bottom:1px solid #f5f3ef;line-height:1.45;align-items:flex-start;}
+.rrow:last-child{border-bottom:none;}
+.rrow a{color:#0F6E56;text-decoration:none;font-weight:600;}
+.rest-note{padding:10px 14px 12px;font-size:12px;color:#555;line-height:1.65;border-top:1px solid #f0ede7;}
+.rest-btns{display:flex;gap:8px;padding:0 14px 13px;}
+.rbtn{flex:1;padding:9px 0;border-radius:10px;border:1px solid #0F6E56;background:transparent;color:#0F6E56;font-size:12px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px;}
+.rbtn.solid{background:#0F6E56;color:#fff;}
+
+.weather-link{background:#fff;border-radius:14px;border:1px solid #e8e4dd;margin-bottom:8px;display:flex;align-items:center;gap:12px;padding:13px 14px;text-decoration:none;}
+.wl-ic{font-size:26px;flex-shrink:0;}
+.wl-city{font-size:13px;font-weight:700;color:#1a1a1a;}
+.wl-sub{font-size:11px;color:#888;margin-top:1px;}
+.wl-arr{font-size:12px;color:#0F6E56;font-weight:700;margin-left:auto;}
+
+.ztl{background:#fff9ec;border:1px solid #fce8b2;border-radius:12px;padding:11px 13px;margin-bottom:8px;display:flex;gap:9px;align-items:flex-start;}
+.day-nav-btns{display:flex;gap:10px;margin-top:4px;padding-bottom:1rem;}
+.day-nav-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 10px;border-radius:14px;border:1px solid #e8e4dd;background:#fff;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:all .12s;}
+.day-nav-btn:active{background:#f0ede7;}
+.day-nav-btn.prev{color:#555;}
+.day-nav-btn.next{background:#0F6E56;border-color:#0F6E56;color:#fff;}
+.day-nav-btn-ic{font-size:15px;}
+.day-nav-btn-txt{display:flex;flex-direction:column;align-items:flex-start;}
+.day-nav-btn.next .day-nav-btn-txt{align-items:flex-end;}
+.day-nav-btn-label{font-size:10px;font-weight:600;opacity:.7;letter-spacing:.5px;text-transform:uppercase;}
+.day-nav-btn-name{font-size:12px;font-weight:700;line-height:1.2;}
+.ztl-ic{font-size:17px;flex-shrink:0;margin-top:1px;}
+.ztl-body{font-size:12px;color:#6b4e10;line-height:1.6;}
+.ztl-title{font-weight:700;margin-bottom:2px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PANTALLA PRINCIPAL
+════════════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+
+  <div class="hero">
+    <div class="hero-eye">🚗 Viaje familiar · Verano 2026</div>
+    <div class="hero-title">La Toscana</div>
+    <div class="hero-sub">Madrid · Zaragoza · Nimes · Pisa · Siena · Menton · Girona · Madrid</div>
+    <div class="hero-pills">
+      <span class="pill">15 días</span>
+      <span class="pill">4 personas</span>
+      <span class="pill">17–31 julio</span>
+      <span class="pill">~3.700 km</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="homeTab('overview',this)">Resumen</button>
+    <button class="tab-btn" onclick="homeTab('days',this)">Días</button>
+    <button class="tab-btn" onclick="homeTab('hotels',this)">Hoteles</button>
+  </div>
+
+  <div class="body">
+
+    <!-- TAB: OVERVIEW -->
+    <div id="tab-overview">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val">15</div><div class="stat-lbl">días de viaje</div></div>
+        <div class="stat-box"><div class="stat-val">~3.700</div><div class="stat-lbl">km en coche</div></div>
+        <div class="stat-box"><div class="stat-val">7</div><div class="stat-lbl">ciudades</div></div>
+        <div class="stat-box"><div class="stat-val">5.188 €</div><div class="stat-lbl">hoteles (total)</div></div>
+      </div>
+
+      <div class="sec">Recorrido del viaje</div>
+      <div class="card">
+        <div class="route-item" onclick="openDay(0)">
+          <div class="ri-left"><div class="ri-dot">1</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Madrid → Zaragoza</div><div class="ri-dates">Vie 17 jul</div><div class="ri-desc">Primera etapa. Noche en Zaragoza. Comida en Ama Leku.</div><span class="ri-km">🚗 321 km · 3h 15min</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(1)">
+          <div class="ri-left"><div class="ri-dot">2</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Zaragoza → Nimes</div><div class="ri-dates">Sáb 18 jul</div><div class="ri-desc">Sur de Francia. Anfiteatro romano de Nimes.</div><span class="ri-km">🚗 678 km · 8h 30min</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(2)">
+          <div class="ri-left"><div class="ri-dot">3</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Nimes → Costa Azul → Pisa</div><div class="ri-dates">Dom 19 jul</div><div class="ri-desc">Haute Corniche · Mónaco · Génova. Base en Pisa 5 noches.</div><span class="ri-km">🚗 700 km · ~8h</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(3)">
+          <div class="ri-left"><div class="ri-dot transit">4</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Pisa — Torre y ciudad</div><div class="ri-dates">Lun 20 jul · base Pisa</div><div class="ri-desc">Piazza dei Miracoli, Torre Inclinada. A pie.</div></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(4)">
+          <div class="ri-left"><div class="ri-dot transit">5</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Canteras de Carrara · Alpes Apuanos</div><div class="ri-dates">Mar 21 jul · base Pisa</div><div class="ri-desc">Mortarola · Bedizzano · Colonnata · Fossacava · Fantiscritti · Ponti di Vara · Ravaccione · Campocecina · Rocca di Massa · Stazzema.</div><span class="ri-km">🚗 ~220 km circular · todo panorámicas</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(5)">
+          <div class="ri-left"><div class="ri-dot transit">6</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Lucca · San Gimignano · Volterra · Livorno</div><div class="ri-dates">Mié 22 jul · base Pisa</div><div class="ri-desc">Lucca amurallada · torres de San Gimignano · Volterra etrusca · vuelta por Livorno.</div><span class="ri-km">🚗 ~280 km circular</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(6)">
+          <div class="ri-left"><div class="ri-dot transit">7</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Florencia</div><div class="ri-dates">Jue 23 jul · base Pisa</div><div class="ri-desc">Uffizi · Brunelleschi · Ponte Vecchio. ZTL.</div><span class="ri-km">🚗 ~160 km circular</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(7)">
+          <div class="ri-left"><div class="ri-dot">8</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Ruta del Chianti → Siena</div><div class="ri-dates">Vie 24 jul</div><div class="ri-desc">GPS: Grassina. Chianti Classico · Monteriggioni. Base Siena 4n.</div><span class="ri-km">🚗 240 km · 5h</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(8)">
+          <div class="ri-left"><div class="ri-dot transit">9</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Siena — ciudad medieval</div><div class="ri-dates">Sáb 25 jul · base Siena</div><div class="ri-desc">Piazza del Campo · Duomo · Contrade. A pie.</div></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(9)">
+          <div class="ri-left"><div class="ri-dot transit">10</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Crete Senesi · Val d'Orcia</div><div class="ri-dates">Dom 26 jul · base Siena</div><div class="ri-desc">Asciano · Baccoleno · Monte Olivetto · Montalcino · Sant'Antimo · Pitigliano.</div><span class="ri-km">🚗 ~280 km circular · todo panorámicas</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(10)">
+          <div class="ri-left"><div class="ri-dot transit">11</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Val d'Orcia · SP146 · Montepulciano</div><div class="ri-dates">Lun 27 jul · base Siena</div><div class="ri-desc">Chapel Vitaleta · Pienza · Montichiello · Montepulciano · La Foce · Bagni San Filippo · Bagno Vignoni.</div><span class="ri-km">🚗 ~300 km circular · todo panorámicas</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(11)">
+          <div class="ri-left"><div class="ri-dot">12</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Garfagnana → Menton</div><div class="ri-dates">Mar 28 jul</div><div class="ri-desc">Borgo a Mozzano · Barga · Riviera. Noche en Menton.</div><span class="ri-km">🚗 520 km · 7h 30min</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(12)">
+          <div class="ri-left"><div class="ri-dot">13</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Basse Corniche · Menton</div><div class="ri-dates">Mié 29 jul</div><div class="ri-desc">Mónaco · Èze · Cap Ferrat · Villefranche · Niza. 2ª noche Menton.</div><span class="ri-km">🚗 600 km · 6h 10min</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(13)">
+          <div class="ri-left"><div class="ri-dot">14</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Verdon · Girona</div><div class="ri-dates">Jue 30 jul</div><div class="ri-desc">Gargantas del Verdon · Lac de Sainte-Croix · Girona.</div><div class="ri-km">🚗 ~560 km</div></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(15)">
+          <div class="ri-left"><div class="ri-dot transit">14</div><div class="ri-line"></div></div>
+          <div class="ri-body"><div class="ri-city">Girona — día libre</div><div class="ri-dates">Jue 30 jul · base Girona</div><div class="ri-desc">Catedral · Call judío · Onyar · Costa Brava opcional.</div></div>
+          <div class="ri-arr">›</div>
+        </div>
+        <div class="route-item" onclick="openDay(15)">
+          <div class="ri-left"><div class="ri-dot end-dot" style="background:#c0392b;color:#fff;">15</div></div>
+          <div class="ri-body"><div class="ri-city">Girona → Madrid 🏠</div><div class="ri-dates">Vie 31 jul</div><div class="ri-desc">Vuelta a casa. Fin del viaje.</div><span class="ri-km">🚗 695 km · ~7h</span></div>
+          <div class="ri-arr">›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: DAYS GRID -->
+    <div id="tab-days" style="display:none;">
+      <div class="sec">Selecciona un día</div>
+      <div class="day-grid" id="dayGrid"></div>
+    </div>
+
+    <!-- TAB: HOTELS -->
+    <div id="tab-hotels" style="display:none;">
+
+      <div class="nota">
+        <div class="nota-ic">⚠️</div>
+        <div class="nota-body"><div class="nota-title">Habitaciones juntas — necesidad especial</div>Todas las reservas se han pedido con habitaciones juntas o comunicadas por necesidades especiales de una persona del grupo. Confirmar en cada check-in.</div>
+      </div>
+
+      <div class="total-card">
+        <div><div class="tc-lbl">Total hoteles confirmados</div><div class="tc-val">5.188 €</div><div class="tc-sub">6 destinos · 15 noches · 4 personas</div></div>
+      </div>
+
+      <div class="sec">Alojamientos</div>
+
+      <div class="hotel-card">
+        <div class="hotel-head"><div><div class="hn">Eurostar Rey Fernando</div><div class="hs">★★★★ · Zaragoza</div></div>
+        <div class="hrow">📍&nbsp; Calle Bari, 27 · 50197 Zaragoza</div>
+        <a class="hrow hrow-link" href="tel:+34 913 342 196">📞&nbsp; +34 913 342 196</a>
+        <a class="hrow hrow-link maps-btn" href="https://maps.google.com/?q=Eurostars+Rey+Fernando+Calle+Bari+27+Zaragoza" target="_blank">🗺️&nbsp; Ver en Google Maps</a><div class="hb">1 noche · 17 jul</div></div>
+        <div class="hotel-rows">
+          <div class="hrow">🛏️&nbsp; 3 habitaciones — juntas, doble con ducha</div>
+          <div class="hrow">🅿️&nbsp; Parking acceso desde el hotel</div>
+          <div class="hrow">🍳&nbsp; Desayuno incluido</div>
+          <div class="hrow">📅&nbsp; Cancelación hasta <strong>12 julio 2026</strong></div>
+        </div>
+        <div class="hotel-price"><span class="hp-l">Total</span><span class="hp-v">319 €</span></div>
+      </div>
+
+      <div class="hotel-card">
+        <div class="hotel-head"><div><div class="hn">Novotel Atria Nimes Centre</div><div class="hs">★★★★ · AA · Nimes, Francia</div></div>
+        <div class="hrow">📍&nbsp; 5 Boulevard de Prague · 30000 Nîmes</div>
+        <a class="hrow hrow-link" href="tel:+33 4 66 76 56 56">📞&nbsp; +33 4 66 76 56 56</a>
+        <a class="hrow hrow-link maps-btn" href="https://maps.google.com/?q=Novotel+Atria+Nimes+Centre+5+Boulevard+de+Prague" target="_blank">🗺️&nbsp; Ver en Google Maps</a><div class="hb">1 noche · 18 jul</div></div>
+        <div class="hotel-rows">
+          <div class="hrow">📍&nbsp; 5 Bd de Prague, 30000 Nîmes</div>
+          <div class="hrow">🛏️&nbsp; Doble estándar · 2 camas · ducha</div>
+          <div class="hrow">🅿️&nbsp; Parking (no desde el hotel) · cancelación hasta 15 jul</div>
+          <div class="hrow">🍳&nbsp; Desayuno no incluido (20 €)</div>
+          <div class="hrow">📅&nbsp; Cancelación hasta <strong>15 julio 2026</strong></div>
+        </div>
+        <div class="hotel-warn">📞 Llamar para pedir habitaciones juntas: <strong>+33 4 66 76 56 56</strong></div>
+        <div class="hotel-price"><span class="hp-l">Total</span><span class="hp-v">352 €</span></div>
+      </div>
+
+      <div class="hotel-card">
+        <div class="hotel-head"><div><div class="hn">San Ranieri Hotel ✓</div><div class="hs">★★★★ · AA · Pisa</div></div>
+        <div class="hrow">📍&nbsp; Via Filippo Mazzei, 2 · 56124 Pisa</div>
+        <a class="hrow hrow-link" href="tel:+39 050 971 951">📞&nbsp; +39 050 971 951</a>
+        <a class="hrow hrow-link maps-btn" href="https://maps.google.com/?q=San+Ranieri+Hotel+Via+Filippo+Mazzei+2+Pisa" target="_blank">🗺️&nbsp; Ver en Google Maps</a><div class="hb">5 noches · 19–24 jul</div></div>
+        <div class="hotel-rows">
+          <div class="hrow">🛏️&nbsp; 2 hab. comunicadas — 1 cama grande + 2 individuales <strong>(confirmado)</strong></div>
+          <div class="hrow">🚿&nbsp; Ducha confirmada · Ascensor · AA</div>
+          <div class="hrow">🅿️&nbsp; Parking público en la calle</div>
+          <div class="hrow">🍳&nbsp; Desayuno incluido</div>
+          <div class="hrow">📅&nbsp; Cancelación hasta <strong>11 julio 2026</strong></div>
+        </div>
+        <div class="hotel-warn">✅ Aprobado: habitaciones comunicadas confirmadas</div>
+        <div class="hotel-price"><span class="hp-l">Total</span><span class="hp-v">1.996 €</span></div>
+      </div>
+
+      <div class="hotel-card">
+        <div class="hotel-head"><div><div class="hn">Hotel Executive</div><div class="hs">★★★★ · AA · Siena</div></div>
+        <div class="hrow">📍&nbsp; Via Nazareno Orlandi, 32 · 53100 Siena</div>
+        <a class="hrow hrow-link" href="tel:+39 0577 331210">📞&nbsp; +39 0577 331210</a>
+        <a class="hrow hrow-link maps-btn" href="https://maps.google.com/?q=Hotel+Executive+Via+Nazareno+Orlandi+32+Siena" target="_blank">🗺️&nbsp; Ver en Google Maps</a><div class="hb">4 noches · 24–28 jul</div></div>
+        <div class="hotel-rows">
+          <div class="hrow">📍&nbsp; Via Nazareno Orlandi 32, 53100 Siena</div>
+          <div class="hrow">🛏️&nbsp; 3 habitaciones doble superior</div>
+          <div class="hrow">🅿️&nbsp; Parking privado incluido</div>
+          <div class="hrow">🍳&nbsp; Desayuno incluido</div>
+          <div class="hrow">📅&nbsp; Cancelación hasta <strong>19 julio 2026</strong></div>
+        </div>
+        <div class="hotel-warn">⚠️ Comprobar en check-in que TODAS las habitaciones tienen ducha</div>
+        <div class="hotel-price"><span class="hp-l">Total</span><span class="hp-v">1.238 €</span></div>
+      </div>
+
+      <div class="hotel-card">
+        <div class="hotel-head"><div><div class="hn">Ibis Style Menton Centre</div><div class="hs">★★★ · Menton, Francia</div></div>
+        <div class="hrow">📍&nbsp; 10 Rue Villarey · 06500 Menton</div>
+        <a class="hrow hrow-link" href="tel:+33 4 92 10 95 25">📞&nbsp; +33 4 92 10 95 25</a>
+        <a class="hrow hrow-link maps-btn" href="https://maps.google.com/?q=Ibis+Styles+Menton+Centre+10+Rue+Villarey" target="_blank">🗺️&nbsp; Ver en Google Maps</a><div class="hb">1 noche · 28 jul</div></div>
+        <div class="hotel-rows">
+          <div class="hrow">🛏️&nbsp; 2 hab. doble con balcón · 2 camas</div>
+          <div class="hrow">🅿️&nbsp; Parking concedido — modelo enviado</div>
+          <div class="hrow">🍳&nbsp; Desayuno incluido</div>
+          <div class="hrow">📅&nbsp; Cancelación hasta <strong>25 julio 2026</strong></div>
+        </div>
+        <div class="hotel-warn">Habitaciones juntas solicitadas. Ascensor y AA confirmados.</div>
+        <div class="hotel-price"><span class="hp-l">Total</span><span class="hp-v">513 €</span></div>
+      </div>
+
+      <div class="hotel-card">
+        <div class="hotel-head"><div><div class="hn">Hotel Gran Ultonia</div><div class="hs">★★★★ · Girona</div></div>
+        <div class="hrow">📍&nbsp; Gran Via Jaume I, 22 · 17001 Girona</div>
+        <a class="hrow hrow-link" href="tel:+34 972 203 850">📞&nbsp; +34 972 203 850</a>
+        <a class="hrow hrow-link maps-btn" href="https://maps.google.com/?q=Hotel+Gran+Ultonia+Gran+Via+Jaume+I+22+Girona" target="_blank">🗺️&nbsp; Ver en Google Maps</a><div class="hb">2 noches · 29–30 jul</div></div>
+        <div class="hotel-rows">
+          <div class="hrow">📍&nbsp; Gran Vía de Jaume I, 22 · <a href="tel:+34972203850">972 20 38 50</a></div>
+          <div class="hrow">📋&nbsp; Reserva nº <strong>6185733348</strong></div>
+          <div class="hrow">🛏️&nbsp; 3 hab. doble · habitaciones contiguas solicitadas</div>
+          <div class="hrow">🅿️&nbsp; Parking reservado con el hotel</div>
+          <div class="hrow">🍳&nbsp; Sin desayuno · ☕ Pedir café MUY caliente</div>
+          <div class="hrow">📅&nbsp; Cancelación hasta <strong>25 julio 2026</strong></div>
+        </div>
+        <div class="hotel-price"><span class="hp-l">Total</span><span class="hp-v">770 €</span></div>
+      </div>
+
+    </div><!-- /tab-hotels -->
+  </div><!-- /body -->
+</div><!-- /screen-home -->
+
+
+<!-- ═══════════════════════════════════════════
+     PANTALLA DÍA
+════════════════════════════════════════════ -->
+<div id="screen-day" class="screen">
+  <div class="day-topbar">
+    <button class="back-btn" onclick="goHome()">‹ Inicio</button>
+    <div class="day-topbar-title" id="day-topbar-title">Día 1</div>
+    <div class="day-nav-arrows">
+      <button class="dna" id="dna-prev" onclick="stepDay(-1)">‹</button>
+      <button class="dna" id="dna-next" onclick="stepDay(1)">›</button>
+    </div>
+  </div>
+  <div class="body" id="day-body"></div>
+</div>
+
+
+<script>
+// ── DATA ──
+const DAYS=[
+{n:1,wd:"Vie",date:"17 jul",city:"Zaragoza",emoji:"🏙️",title:"Madrid → Zaragoza",
+desc:"Primera etapa. Salida desde Madrid por la A-2. Llegada a mediodía para explorar Zaragoza y comer en Ama Leku.",
+stats:[{ic:"🚗",txt:"321 km"},{ic:"⏱️",txt:"3h 15min"},{ic:"🌙",txt:"Zaragoza"}],ztl:false,
+itin:[
+  {ic:"🚗",bg:"ic-gray",name:"Salida Madrid → Zaragoza",note:"A-2 Autovía del Nordeste. Parada opcional en Calatayud.",tags:[],links:[{label:"🗺️ Ruta Madrid–Zaragoza",url:"https://maps.google.com/?saddr=Madrid&daddr=Zaragoza",type:"maps"}]},
+  {ic:"🏛️",bg:"ic-green",name:"Basílica del Pilar",note:"La catedral barroca más grande de España. Subida a las torres con vistas al Ebro.",tags:["imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Catedral_bas%C3%ADlica_de_Nuestra_Se%C3%B1ora_del_Pilar_(Zaragoza)",type:"wiki"},{label:"🌐 Web oficial",url:"https://catedraldezaragoza.es/basilica/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Basilica+del+Pilar+Zaragoza"}]},
+  {ic:"🕌",bg:"ic-amber",name:"La Aljafería",note:"Palacio árabe del siglo XI, Patrimonio UNESCO. El mejor conservado fuera de Andalucía.",tags:["Patrimonio UNESCO"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Palacio_de_la_Aljafer%C3%ADa",type:"wiki"},{label:"🌐 Web oficial",url:"https://www.palacioaljaferia.com/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Aljaferia+Zaragoza"}]},
+  {ic:"🍷",bg:"ic-red",name:"Comida — Ama Leku",note:"Restaurante vasco especialidad en pescado salvaje. Paseo de Sagasta, 37. Reserva recomendada.",tags:["reservado","15:00"]}
+],
+route:{total:"321 km · 3h 15min",steps:[
+  {city:"Madrid",detail:"A-2 dirección Zaragoza",km:null,wp:false,end:false},
+  {city:"Calatayud (km 235)",detail:"Parada opcional · Monasterio de Piedra a 30 min",km:"2h 20min",wp:true,end:false},
+  {city:"Zaragoza",detail:"Hotel Eurostar Rey Fernando",km:"3h 15min",wp:false,end:true}
+]},
+hotel:{name:"Eurostar Rey Fernando",stars:"★★★★",city:"Zaragoza",address:"Calle Bari, 27 · 50197 Zaragoza",phone:"+34 913 342 196",maps:"https://maps.google.com/?q=Eurostars+Rey+Fernando+Calle+Bari+27+Zaragoza",noches:"1 noche",precio:"319 €",
+  rows:[{ic:"🛏️",txt:"3 habitaciones — juntas, doble con ducha"},{ic:"🅿️",txt:"Parking acceso desde el hotel"},{ic:"🍳",txt:"Desayuno incluido"},{ic:"📅",txt:"Cancelación hasta 12 julio 2026"}],warn:null},
+restaurant:{name:"Ama Leku",cuisine:"Cocina vasca · Pescado salvaje del Cantábrico",stars:"★★★★★",rating:"4.7 / 5 · Google (3.348 reseñas)",
+  rows:[{ic:"📍",txt:"Paseo de Sagasta, 37 — Local 2, Zaragoza"},{ic:"📞",txt:"976 21 53 66 · 607 482 121"},{ic:"🕐",txt:"Jue–Sáb: 13:45–15:30 y 21:00–23:00"},{ic:"💶",txt:"50–60 € / persona"},{ic:"🗺️",txt:'<a href="https://maps.google.com/?q=Paseo+de+Sagasta+37+Zaragoza" target="_blank">Abrir en Google Maps ↗</a>'}],
+  note:"Solo 25–30 plazas. Chef (Chema) recomienda según la lonja: lubina, besugo, rodaballo. Platos estrella: huevos negros con chipirón, ceviche de langostinos, anchoas. Gloria en sala inmejorable. 17 julio es Viernes — tienen servicio de comida a las 15:00.",
+  warn:"⚠️ Reservar con antelación — pocas plazas y muy demandado"},
+weather:{city:"Zaragoza",mb:"https://www.meteoblue.com/es/tiempo/semana/zaragoza_espa%C3%B1a_6362785"}},
+
+{n:2,wd:"Sáb",date:"18 jul",city:"Nimes",emoji:"🏛️",title:"Zaragoza → Nimes",
+desc:"Etapa larga cruzando el sur de Francia. Llegada a Nimes con el anfiteatro romano más espectacular del mundo.",
+stats:[{ic:"🚗",txt:"678 km"},{ic:"⏱️",txt:"8h 30min"},{ic:"🌙",txt:"Nimes"}],ztl:false,
+itin:[
+  {ic:"🚗",bg:"ic-gray",name:"Zaragoza → Barcelona → Nimes",note:"AP-2/A-7. Repostar en España antes de entrar a Francia.",tags:[]},
+  {ic:"🏟️",bg:"ic-green",name:"Anfiteatro de Nimes (Arènes)",note:"Mejor conservado del mundo que el Coliseo. Siglo I d.C., 24.000 espectadores.",tags:["imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Anfiteatro_de_N%C3%AEmes",type:"wiki"},{label:"🌐 Web oficial",url:"https://www.arenes-nimes.com/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Arenes+de+Nimes"},{label:"📄 Guía Zaragoza a Nimes",url:"DE_ZARAGOZA_A_NIMES.pdf",type:""},{label:"🗺️ Mapa de Francia",url:"https://www.geoportail.gouv.fr/donnees/cartes-ign-classiques",type:""}]},
+  {ic:"🏛️",bg:"ic-blue",name:"Maison Carrée",note:"Templo romano del siglo I a.C. perfectamente conservado. A 5 min del anfiteatro.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Maison_Carr%C3%A9e",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Maison+Carree+Nimes"}]},
+  {ic:"🌉",bg:"ic-amber",name:"Pont du Gard (opcional)",note:"Acueducto romano UNESCO a 30 km. Puede ser también a la vuelta.",tags:["UNESCO","opcional"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Pont_du_Gard",type:"wiki"},{label:"🌐 Web oficial",url:"https://www.pontdugard.fr/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Pont+du+Gard"}]}
+],
+route:{total:"678 km · 8h 30min",steps:[
+  {city:"Zaragoza",detail:"AP-2 dirección Barcelona",km:null,wp:false,end:false},
+  {city:"Barcelona (km 300)",detail:"Circunvalación C-32 — no parar",km:"2h 50min",wp:false,end:false},
+  {city:"Montpellier (km 520)",detail:"A9 · Parada recomendada 20 min",km:"5h 30min",wp:true,end:false},
+  {city:"Nimes — Novotel Atria",detail:"Centro ciudad",km:"8h 30min",wp:false,end:true}
+]},
+hotel:{name:"Novotel Atria Nimes Centre",stars:"★★★★ · AA",city:"Nimes, Francia",noches:"1 noche",precio:"352 €",
+  rows:[{ic:"📍",txt:"5 Bd de Prague, 30000 Nîmes"},{ic:"🛏️",txt:"Doble estándar · 2 camas · ducha"},{ic:"🅿️",txt:"Parking (no desde el hotel) · cancelación hasta 15 jul"},{ic:"🍳",txt:"Desayuno no incluido (20 €)"},{ic:"📅",txt:"Cancelación: hasta 15 julio 2026"}],warn:"📞 Llamar para habitaciones juntas: +33 4 66 76 56 56"},
+restaurant:null,weather:{city:"Nimes",mb:"https://www.meteoblue.com/es/tiempo/semana/n%C3%AEmes_francia_2990646"}},
+
+{n:3,wd:"Dom",date:"19 jul",city:"Pisa",emoji:"🌊",title:"Nimes → Costa Azul → Pisa",
+desc:"Atravesar la Costa Azul por la Haute Corniche, la carretera más espectacular de Europa. Llegada a Pisa para 5 noches.",
+stats:[{ic:"🚗",txt:"700 km"},{ic:"⏱️",txt:"~8h"},{ic:"🌙",txt:"Pisa — base 5n"}],ztl:false,
+itin:[
+  {ic:"🏔️",bg:"ic-green",name:"Haute Corniche — Costa Azul",note:"Las tres Corniches van de Niza a Menton. Grande Corniche (M2564): la más alta, construida por Napoleón, vistas más impresionantes. Moyenne Corniche: acceso al pueblo medieval de Èze. Basse Corniche: bordea el mar, pasa por Villefranche y Cap Ferrat. Paradas clave: Col d'Eze, Fort de la Revère (panorámica 360°), La Turbie (Trofeo Romano y vista de Mónaco desde arriba sin entrar), mirador d'Eze (vistas de Tête de Chien, Cap Ferrat y los Alpes).",tags:["imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Grande_Corniche",type:"wiki"},{label:"📄 Guía Las Corniches",url:"Las_Corniches.pdf",type:""},{label:"🗺️ De Nimes a Pisa",url:"https://maps.app.goo.gl/8gavWc9jBxp6Zq1p8",type:"maps"}]},
+  {ic:"🦅",bg:"ic-blue",name:"La Turbie · Tête de Chien (550m)",note:"El punto más alto de la Corniche. Vista sobre Mónaco y los Alpes. Parada imprescindible.",tags:["mirador"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/La_Turbie",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Tete+de+Chien+La+Turbie+France"}]},
+  {ic:"🎰",bg:"ic-amber",name:"Mónaco (parada breve)",note:"Puerto Hércules, Casino. Parking muy caro — visita de 1h máximo.",tags:["opcional"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/M%C3%B3naco",type:"wiki"},{label:"🌐 Turismo",url:"https://www.visitmonaco.com/es",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Monaco"}]}
+],
+route:{total:"700 km · ~8h",steps:[
+  {city:"Nimes",detail:"A9 dirección este",km:null,wp:false,end:false},
+  {city:"Menton (km 340)",detail:"Inicio Haute Corniche D2564",km:"3h 30min",wp:true,end:false},
+  {city:"La Turbie / Mónaco (km 360)",detail:"Tête de Chien — mirador",km:"3h 45min",wp:true,end:false},
+  {city:"Niza (km 380)",detail:"A8 dirección Italia",km:"4h",wp:true,end:false},
+  {city:"Génova (km 530)",detail:"Parada opcional 45 min",km:"6h",wp:true,end:false},
+  {city:"Pisa — San Ranieri Hotel",detail:"A11 · Check-in",km:"~8h",wp:false,end:true}
+]},
+hotel:{name:"San Ranieri Hotel ✓",stars:"★★★★ · AA",city:"Pisa · 19–24 julio",noches:"5 noches",precio:"1.996 €",
+  rows:[{ic:"🛏️",txt:"2 hab. comunicadas — 1 cama grande + 2 individuales (confirmado)"},{ic:"🚿",txt:"Ducha · Ascensor · AA"},{ic:"🅿️",txt:"Parking público en la calle"},{ic:"🍳",txt:"Desayuno incluido"},{ic:"📅",txt:"Cancelación: hasta 11 julio 2026"}],warn:"✅ Habitaciones comunicadas confirmadas"},
+restaurant:null,weather:{city:"Pisa",mb:"https://www.meteoblue.com/es/tiempo/semana/pisa_italia_3170647"}},
+
+{n:4,wd:"Lun",date:"20 jul",city:"Pisa",emoji:"🗼",title:"Pisa — Torre y ciudad",
+desc:"Día de descanso. La Piazza dei Miracoli, la Torre Inclinada y el Pisa universitario junto al Arno.",
+stats:[{ic:"🚶",txt:"A pie"},{ic:"⏱️",txt:"Sin coche"},{ic:"🌙",txt:"Pisa"}],ztl:true,ztlInfo:"ZTL Pisa — activa 24h/7 días (desde 2025). Aparcar en parkings Pietrasantina, Cammeo o fuera del centro. El hotel puede inscribir tu matrícula para el check-in.",
+itin:[
+  {ic:"🗼",bg:"ic-green",name:"Torre Inclinada + Piazza dei Miracoli",note:"Reservar subida online semanas antes (40 personas / 30 min). Entrada combinada con Duomo y Baptisterio.",tags:["reservar online","imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Torre_de_Pisa",type:"wiki"},{label:"🎟️ Entradas oficiales",url:"https://www.opapisa.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Piazza+dei+Miracoli+Pisa"},{label:"📄 Guía Pisa",url:"PISA.pdf",type:""}]},
+  {ic:"🚶",bg:"ic-blue",name:"Borgo Stretto y Piazza dei Cavalieri",note:"Calle medieval bajo soportales y la plaza de los Caballeros. El Pisa real.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Piazza_dei_Cavalieri_(Pisa)",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Piazza+dei+Cavalieri+Pisa"}]},
+  {ic:"🌊",bg:"ic-gray",name:"Paseo por los Lungarni",note:"Paseos del Arno flanqueados de palacios. Muy fotogénico al atardecer.",tags:[]}
+],
+route:{total:"A pie · toda la jornada",steps:[
+  {city:"Hotel San Ranieri",detail:"Salida a pie",km:null,wp:false,end:false},
+  {city:"Piazza dei Miracoli",detail:"20 min a pie",km:"20 min",wp:false,end:false},
+  {city:"Borgo Stretto",detail:"Calle histórica bajo soportales",km:"10 min",wp:true,end:false},
+  {city:"Lungarni — Arno",detail:"Paseo junto al río",km:"15 min",wp:false,end:true}
+]},
+hotel:{name:"San Ranieri Hotel",stars:"★★★★",city:"Pisa",address:"Via Filippo Mazzei, 2 · 56124 Pisa",phone:"+39 050 971 951",maps:"https://maps.google.com/?q=San+Ranieri+Hotel+Via+Filippo+Mazzei+2+Pisa",noches:"Noche 2/5",precio:"1.996 € total",rows:[{ic:"🛏️",txt:"Comunicadas confirmadas"},{ic:"🍳",txt:"Desayuno incluido"}],warn:null},
+restaurant:null,weather:{city:"Pisa",mb:"https://www.meteoblue.com/es/tiempo/semana/pisa_italia_3170647"}},
+
+{n:5,wd:"Mar",date:"21 jul",city:"Carrara · Alpes Apuanos",emoji:"⛰️",title:"Canteras de Carrara · Alpes Apuanos",
+desc:"Ruta completa por el mundo del mármol: canteras activas, pueblos de marmoleros, miradores sobre los Alpes Apuanos y estructuras industriales históricas. Una de las rutas más singulares de la Toscana.",
+stats:[{ic:"🚗",txt:"~220 km circular"},{ic:"⏱️",txt:"Todo el día"},{ic:"🌙",txt:"Pisa"}],ztl:false,
+itin:[
+  {ic:"🚗",bg:"ic-gray",name:"Pisa → Carrara",note:"A12 dirección norte · 45 min. Carrara es la ciudad del mármol blanco más famoso del mundo. Miguel Ángel, Bernini y Canova eligieron aquí su piedra. Las calles del centro tienen polvo blanco en el suelo.",tags:[],links:[{label:"📖 Wikipedia Carrara",url:"https://es.wikipedia.org/wiki/Carrara",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Carrara+Tuscany"}]},
+  {ic:"🏘️",bg:"ic-amber",name:"Località Mortarola",note:"Pequeña localidad en las laderas de los Alpes Apuanos, en el corazón de la zona de extracción. El nombre evoca los morteros de mármol. Punto de entrada a la ruta de las canteras con vistas sobre el valle.",tags:[],links:[{label:"🗺️ Maps",url:"https://maps.google.com/?q=Mortarola+Carrara"}]},
+  {ic:"🏘️",bg:"ic-gray",name:"Bedizzano",note:"Pueblo de marmoleros a media altura con casas de piedra blanca. Desde aquí se tiene una perspectiva única de las canteras abiertas en la montaña, con los cortes blancos visibles desde lejos como heridas en la roca.",tags:[],links:[{label:"🗺️ Maps",url:"https://maps.google.com/?q=Bedizzano+Carrara"}]},
+  {ic:"🍽️",bg:"ic-green",name:"Colonnata — Lardo di Colonnata",note:"Pueblo medieval enclavado entre canteras. Famoso en todo el mundo por el Lardo di Colonnata IGP: tocino curado en cuencas de mármol local con especias durante meses. Las tiendas del pueblo venden directamente. Una parada gastronómica imprescindible.",tags:["imprescindible","gastronomía IGP"],links:[{label:"📖 Wikipedia Lardo di Colonnata",url:"https://es.wikipedia.org/wiki/Lardo_di_Colonnata",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Colonnata+Carrara"}]},
+  {ic:"⛏️",bg:"ic-amber",name:"Cava Romana di Fossacava",note:"Cantera de época romana, una de las más antiguas documentadas del área de Carrara. Los romanos ya extraían mármol aquí para los grandes monumentos imperiales. Se conservan las marcas de las cuñas y los surcos de extracción en la roca.",tags:["histórica","época romana"],links:[{label:"🗺️ Maps",url:"https://maps.google.com/?q=Cava+Fossacava+Carrara"}]},
+  {ic:"⛏️",bg:"ic-amber",name:"Carretera Fantiscritti — canteras activas",note:"La carretera más espectacular de la zona: sube serpenteando entre bloques de mármol blanco de toneladas. Los camiones de extracción se cruzan con el coche. Paisaje lunar e industrial único. La Cava Fantiscritti tiene una plaza con bar y vistas directas a la cantera en funcionamiento.",tags:["imprescindible","paisaje único"],links:[{label:"📖 Wikipedia Canteras Carrara",url:"https://es.wikipedia.org/wiki/Canteras_de_m%C3%A1rmol_de_Carrara",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Cave+di+Fantiscritti+Carrara"},{label:"📄 Guía Canteras",url:"Recorrido_Las_Canteras_y_Alpes_Apuanos.pdf",type:""},{label:"🗺️ Ruta1 Canteras",url:"https://maps.app.goo.gl/aVW3YCZPTLgMtEaR6",type:"maps"},{label:"🗺️ Ruta2 Canteras",url:"https://maps.app.goo.gl/mRuxFpSDz8oKKHnr5",type:"maps"}]},
+  {ic:"🌉",bg:"ic-blue",name:"Ponti di Vara",note:"Los Ponti di Vara (puentes de vara) son las estructuras de madera o hierro que se usaban para deslizar los bloques de mármol montaña abajo mediante cuerdas y contrapesos. Algunos ejemplos restaurados se conservan en la zona como testimonio de la ingeniería artesanal de los marmoleros.",tags:[],links:[{label:"🗺️ Maps",url:"https://maps.google.com/?q=Ponti+di+Vara+Carrara"}]},
+  {ic:"🚂",bg:"ic-gray",name:"Antica Stazione di Ravaccione",note:"La antigua estación del tren de las canteras. Ravaccione era el punto de conexión entre la red ferroviaria de las canteras y el puerto de Carrara. Los bloques de mármol bajaban en vagoneta hasta aquí para ser embarcados a todo el mundo.",tags:["patrimonio industrial"],links:[{label:"🗺️ Maps",url:"https://maps.google.com/?q=Stazione+Ravaccione+Carrara"}]},
+  {ic:"🏔️",bg:"ic-green",name:"Campocecina · Piazzale dell'Uccelliera",note:"A 1.300m de altitud. Campocecina es la gran explanada con vistas panorámicas sobre las canteras blancas, el mar Tirreno y La Spezia. El Piazzale dell'Uccelliera es el mirador más espectacular: vistas de 360° donde el mármol blanco contrasta con el verde de los pinos y el azul del Mediterráneo.",tags:["mirador imprescindible","1.300m","360°"],links:[{label:"📖 Wikipedia Alpes Apuanos",url:"https://es.wikipedia.org/wiki/Alpes_Apuanos",type:"wiki"},{label:"🗺️ Maps Campocecina",url:"https://maps.google.com/?q=Campocecina+Carrara"},{label:"🗺️ Maps Uccelliera",url:"https://maps.google.com/?q=Piazzale+Uccelliera+Campocecina"}]},
+  {ic:"🏰",bg:"ic-blue",name:"Rocca Cybo Malaspina di Massa",note:"La fortaleza medieval de los señores Cybo Malaspina domina la ciudad de Massa desde lo alto. Construida entre los siglos XV y XVI, fue residencia de la familia que gobernó la zona durante siglos. Ofrece vistas sobre la llanura costera, el mar y los Alpes Apuanos.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Rocca_di_Massa",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Rocca+Cybo+Malaspina+Massa"}]},
+  {ic:"🌲",bg:"ic-green",name:"Stazzema",note:"Pueblo en las Alpi Apuane, en el corazón del Parco Naturale Regionale delle Alpi Apuane. Conocido trágicamente por la masacre nazi de agosto de 1944 (560 civiles asesinados), hoy es lugar de memoria y de naturaleza. El parque ofrece rutas de senderismo entre bosques y mármol.",tags:["Parco Naturale Apuane"],links:[{label:"📖 Wikipedia Stazzema",url:"https://es.wikipedia.org/wiki/Stazzema",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Stazzema+Lucca"}]},
+  {ic:"🌊",bg:"ic-blue",name:"Cinque Terre (alternativa opcional)",note:"Si se prefiere mar en lugar de montaña: aparcar en La Spezia (Parcheggio Migliarina) y recorrer los 5 pueblos en tren con la Cinque Terre Card (~20€). Incompatible con la ruta de canteras en el mismo día.",tags:["alternativa","opcional"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Cinque_Terre",type:"wiki"},{label:"🎟️ Cinque Terre Card",url:"https://card.parconazionale5terre.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Cinque+Terre"}]}
+],
+route:{total:"~220 km circular · todo panorámicas",steps:[
+  {city:"Pisa",detail:"A12 dirección norte · Carrara",km:null,wp:false,end:false},
+  {city:"Carrara",detail:"Centro ciudad · calles de polvo blanco",km:"45 min",wp:true,end:false},
+  {city:"Località Mortarola",detail:"Entrada a la zona de canteras",km:"1h",wp:true,end:false},
+  {city:"Bedizzano",detail:"Pueblo de marmoleros · vistas a las canteras",km:"1h 15min",wp:true,end:false},
+  {city:"Colonnata",detail:"Lardo di Colonnata IGP · curado en mármol",km:"1h 30min",wp:true,end:false},
+  {city:"Cava Romana di Fossacava",detail:"Cantera romana · marcas de extracción milenarias",km:"1h 45min",wp:true,end:false},
+  {city:"Carretera Fantiscritti",detail:"Canteras activas · camiones de mármol",km:"2h",wp:true,end:false},
+  {city:"Ponti di Vara",detail:"Estructuras históricas de deslizamiento de bloques",km:"2h 20min",wp:true,end:false},
+  {city:"Antica Stazione di Ravaccione",detail:"Antigua estación del tren de las canteras",km:"2h 30min",wp:true,end:false},
+  {city:"Campocecina · Piazzale dell'Uccelliera",detail:"1.300m · mirador 360° · canteras + mar",km:"3h",wp:true,end:false},
+  {city:"Rocca Cybo Malaspina di Massa",detail:"Fortaleza medieval · vistas al mar y los Apuanos",km:"3h 45min",wp:true,end:false},
+  {city:"Stazzema",detail:"Pueblo en el Parco Naturale Alpi Apuane",km:"4h 30min",wp:true,end:false},
+  {city:"Pisa — hotel",detail:"A12 vuelta · ~1h",km:"~5h 30min total",wp:false,end:true}
+]},
+hotel:{name:"San Ranieri Hotel",stars:"★★★★",city:"Pisa",address:"Via Filippo Mazzei, 2 · 56124 Pisa",phone:"+39 050 971 951",maps:"https://maps.google.com/?q=San+Ranieri+Hotel+Via+Filippo+Mazzei+2+Pisa",noches:"Noche 3/5",precio:"1.996 € total",rows:[{ic:"🛏️",txt:"Comunicadas confirmadas"},{ic:"🍳",txt:"Desayuno incluido"}],warn:null},
+restaurant:null,weather:{city:"Carrara · Massa",mb:"https://www.meteoblue.com/es/tiempo/semana/carrara_italia_3179754"}},
+
+{n:6,wd:"Mié",date:"22 jul",city:"Lucca · S.Gimignano · Livorno",emoji:"🏰",title:"Lucca · San Gimignano · Volterra · Livorno",
+desc:"Día completo de pueblos y ciudades. Lucca amurallada, las torres de San Gimignano, Volterra etrusca y vuelta por Livorno junto al mar.",
+stats:[{ic:"🚗",txt:"~280 km"},{ic:"⏱️",txt:"Todo el día"},{ic:"🌙",txt:"Pisa"}],ztl:true,ztlInfo:"ZTL Lucca — activa 24h/7 días. Aparcar en la estación y tomar taxi al centro (Piazza Napoleone, 260m de la Catedral). Radio Taxi Lucca: 0583 333434. ZTL San Gimignano — Lun–Vie 07:00–20:00. Parking Montemaggio (P1) o Bagnaia (P2) fuera de las murallas. ZTL Volterra — 21 mar–1 nov: 10:00–20:00 (15 jul–15 sep hasta las 22:00). Parking Docciola o Porta Fiorentina.",
+itin:[
+  {ic:"🏙️",bg:"ic-blue",name:"Lucca",note:"Ciudad amurallada renacentista. 6 km de murallas ciclables. Piazza dell'Anfiteatro (forma elíptica sobre el anfiteatro romano), Duomo San Martino, Palazzo dei Guinigi con árboles en lo alto de la torre, Via Fillungo. Ciudad natal de Puccini.",tags:["murallas imprescindibles"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Lucca",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Lucca+Tuscany"},{label:"📄 Guía Lucca",url:"LUCA.pdf",type:""},{label:"🗺️ Mapa Lucca a Livorno",url:"https://maps.app.goo.gl/m5i1ZjUZHnA3doUG8",type:"maps"}]},
+  {ic:"🏰",bg:"ic-green",name:"San Gimignano",note:"14 torres medievales. Torre Grossa (54m). Gelateria Dondoli — récord mundial. Vernaccia DOC.",tags:["Patrimonio UNESCO"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/San_Gimignano",type:"wiki"},{label:"🌐 Turismo oficial",url:"https://www.sangimignano.com/",type:""},{label:"🍦 Gelateria Dondoli",url:"https://www.gelateriadondoli.com/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=San+Gimignano"},{label:"📄 Guía S.Gimignano y Volterra",url:"SAN_GIMIGNANO_Y_VOLTERRA.pdf",type:""}]},
+  {ic:"🏛️",bg:"ic-amber",name:"Volterra",note:"Ciudad etrusca en colina. Teatro romano, museo etrusco, artesanía en alabastro.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Volterra",type:"wiki"},{label:"🌐 Turismo Volterra",url:"https://www.volterratur.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Volterra+Tuscany"},{label:"📄 Guía S.Gimignano y Volterra",url:"SAN_GIMIGNANO_Y_VOLTERRA.pdf",type:""}]},
+  {ic:"🌊",bg:"ic-gray",name:"Livorno — vuelta por la costa",note:"Ciudad portuaria toscana con el pintoresco barrio de Venezia Nuova y sus canales, el monumento de Los Cuatro Moros y la Terrazza Mascagni al atardecer. Perfecta para comer junto al mar antes de volver a Pisa.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Livorno",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Livorno+Tuscany"}]}
+],
+route:{total:"~280 km circular",steps:[
+  {city:"Pisa",detail:"A11 / SGC dirección Lucca",km:null,wp:false,end:false},
+  {city:"Lucca",detail:"Aparcar en estación · taxi al centro · murallas",km:"30 min",wp:true,end:false},
+  {city:"San Gimignano",detail:"SP1 panorámica · parking extramuros · entrar a pie",km:"1h 45min",wp:true,end:false},
+  {city:"Volterra",detail:"SP68 panorámica — 20 km preciosos",km:"2h 45min",wp:true,end:false},
+  {city:"Livorno",detail:"SS68 / SS1 · barrio Venezia Nuova · Terrazza Mascagni",km:"4h",wp:true,end:false},
+  {city:"Pisa — hotel",detail:"A12 · 20 min",km:"~4h 30min total",wp:false,end:true}
+]},
+hotel:{name:"San Ranieri Hotel",stars:"★★★★",city:"Pisa",address:"Via Filippo Mazzei, 2 · 56124 Pisa",phone:"+39 050 971 951",maps:"https://maps.google.com/?q=San+Ranieri+Hotel+Via+Filippo+Mazzei+2+Pisa",noches:"Noche 4/5",precio:"1.996 € total",rows:[{ic:"🛏️",txt:"Comunicadas confirmadas"},{ic:"🍳",txt:"Desayuno incluido"}],warn:null},
+restaurant:null,weather:{city:"Lucca · Livorno",mb:"https://www.meteoblue.com/es/tiempo/semana/lucca_italia_3174653"}},
+
+{n:7,wd:"Jue",date:"23 jul",city:"Florencia",emoji:"🎨",title:"Florencia",
+desc:"La joya del Renacimiento. Uffizi, cúpula de Brunelleschi, Ponte Vecchio y Oltrarno. ZTL en todo el centro.",
+stats:[{ic:"🚗",txt:"~80 km desde Pisa"},{ic:"⚠️",txt:"ZTL — sin coche"},{ic:"🌙",txt:"Pisa"}],ztl:true,ztlInfo:"ZTL Florencia (sectores A, B, O) — Lun–Vie 07:30–20:00 · Sáb 07:30–16:00 · Dom libre. ZTL Nocturna Estival (abr–oct): Jue–Sáb 23:00–03:00. En julio todas las noches. Aparcar en Piazzale Michelangelo, Parterre (Piazza Libertà) o Beccaria. Consultar instrucciones al hotel.",
+itin:[
+  {ic:"🎨",bg:"ic-green",name:"Galería de los Uffizi",note:"El Nacimiento de Venus y La Primavera de Botticelli. Reservar semanas antes — cola sin reserva: 3h.",tags:["reservar online","imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Galer%C3%ADa_de_los_Uffizi",type:"wiki"},{label:"🎟️ Entradas oficiales",url:"https://www.uffizi.it/gli-uffizi",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Galleria+degli+Uffizi+Firenze"},{label:"📄 Guía Florencia",url:"FLORENCIA.pdf",type:""},{label:"🗺️ Ruta a pie en Florencia",url:"https://maps.app.goo.gl/ozLUaumxo8KsmihZ8",type:"maps"}]},
+  {ic:"⛪",bg:"ic-blue",name:"Cúpula de Brunelleschi",note:"463 peldaños sin ascensor. Mayor cúpula de ladrillo del mundo. Reservar online.",tags:["reservar online"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/C%C3%BApula_de_Brunelleschi",type:"wiki"},{label:"🎟️ Entradas Duomo",url:"https://www.museumflorence.com/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Cattedrale+di+Santa+Maria+del+Fiore+Firenze"}]},
+  {ic:"🌉",bg:"ic-amber",name:"Ponte Vecchio + Oltrarno",note:"El puente más famoso. Oltrarno — barrio artesanal al sur del Arno, más auténtico.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Ponte_Vecchio",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Ponte+Vecchio+Firenze"}]}
+],
+route:{total:"~160 km ida y vuelta",steps:[
+  {city:"Pisa",detail:"A11 dirección Florencia",km:null,wp:false,end:false},
+  {city:"Florencia — Parking externo",detail:"Piazzale Michelangelo o Parterre · ZTL — NO entrar al centro",km:"1h",wp:false,end:false},
+  {city:"Uffizi → Duomo → Ponte Vecchio",detail:"Todo a pie desde el parking",km:"a pie",wp:true,end:false},
+  {city:"Pisa — hotel",detail:"A11 vuelta",km:"1h",wp:false,end:true}
+]},
+hotel:{name:"San Ranieri Hotel",stars:"★★★★",city:"Pisa",address:"Via Filippo Mazzei, 2 · 56124 Pisa",phone:"+39 050 971 951",maps:"https://maps.google.com/?q=San+Ranieri+Hotel+Via+Filippo+Mazzei+2+Pisa",noches:"Noche 5/5",precio:"1.996 € total",rows:[{ic:"🍳",txt:"Desayuno incluido · Mañana: check-out"}],warn:null},
+restaurant:null,weather:{city:"Florencia",mb:"https://www.meteoblue.com/es/tiempo/semana/florencia_italia_3176959"}},
+
+{n:8,wd:"Vie",date:"24 jul",city:"Siena",emoji:"🍷",title:"Ruta del Chianti → Siena",
+desc:"GPS: Grassina. Chianti Classico entre viñedos y castillos. Monteriggioni. Base Siena 4 noches.",
+stats:[{ic:"🚗",txt:"240 km"},{ic:"⏱️",txt:"5h con paradas"},{ic:"🌙",txt:"Siena — base 4n"}],ztl:true,ztlInfo:"ZTL Siena — activa 24h/7 días con cámaras permanentes. Zona Y histórica (Il Campo, Banchi di Sopra/Sotto, Via di Città): prohibición absoluta permanente. Parking Il Campo (bajo la plaza), Santa Caterina o Stadio. El Hotel Executive tiene parking privado — seguir sus instrucciones.",
+itin:[
+  {ic:"🗺️",bg:"ic-red",name:"GPS: poner «Grassina» al salir de Pisa",note:"Importante: este desvío entra al Chianti por la ruta bonita, evitando la autopista.",tags:["importante"],links:[{label:"🗺️ Ruta del Chianti",url:"https://maps.google.com/?saddr=Grassina&daddr=Siena&via=Greve+in+Chianti,Castellina+in+Chianti,Monteriggioni",type:"maps"}]},
+  {ic:"🍷",bg:"ic-green",name:"Ruta del Chianti Classico",note:"Greve · Panzano · Castellina · Radda · Gaiole · Castillo di Brolio. Paisajes y pueblos.",tags:["paisaje imprescindible"],links:[{label:"📖 Wikipedia Chianti",url:"https://es.wikipedia.org/wiki/Chianti_Cl%C3%A1sico",type:"wiki"},{label:"🌐 Consorzio Chianti",url:"https://www.chianticlassico.com/",type:""},{label:"🗺️ Ruta del Chianti",url:"https://maps.app.goo.gl/ybagXqKaZwxqXCf59",type:"maps"},{label:"📄 Guía Ruta del Chianti",url:"RUTA_DEL_CHIANTI.pdf",type:""}]},
+  {ic:"🏰",bg:"ic-blue",name:"Monteriggioni",note:"Pueblo circular amurallado perfectamente conservado. Parada de 30 min.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Monteriggioni",type:"wiki"},{label:"🌐 Web oficial",url:"https://www.monteriggioniturismo.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Monteriggioni"}]},
+  {ic:"🏨",bg:"ic-gray",name:"Llegada a Siena · ZTL",note:"Hotel Executive, Via Nazareno Orlandi 32. Seguir instrucciones del hotel para aparcar.",tags:["⚠️ ZTL"]}
+],
+route:{total:"240 km · 5h con paradas",steps:[
+  {city:"Pisa (check-out)",detail:"GPS → Grassina (¡importante!)",km:null,wp:false,end:false},
+  {city:"Greve in Chianti",detail:"SS222 Chiantigiana · corazón del Chianti",km:"1h 30min",wp:true,end:false},
+  {city:"Radda / Gaiole / Brolio",detail:"Pueblos y castillos del Chianti Classico",km:"2h 30min",wp:true,end:false},
+  {city:"Monteriggioni",detail:"Pueblo circular amurallado · 30 min",km:"4h 30min",wp:true,end:false},
+  {city:"Siena — Hotel Executive",detail:"Via Nazareno Orlandi 32 · ZTL",km:"5h",wp:false,end:true}
+]},
+hotel:{name:"Hotel Executive",stars:"★★★★ · AA",city:"Siena · 24–28 julio",noches:"4 noches",precio:"1.238 €",
+  rows:[{ic:"📍",txt:"Via Nazareno Orlandi 32, 53100 Siena"},{ic:"🛏️",txt:"3 habitaciones doble superior"},{ic:"🅿️",txt:"Parking privado incluido"},{ic:"🍳",txt:"Desayuno incluido"},{ic:"📅",txt:"Cancelación: hasta 19 julio 2026"}],warn:"⚠️ Comprobar en check-in que TODAS las habitaciones tienen ducha"},
+restaurant:null,weather:{city:"Siena",mb:"https://www.meteoblue.com/es/tiempo/semana/siena_italia_3167022"}},
+
+{n:9,wd:"Sáb",date:"25 jul",city:"Siena",emoji:"🏛️",title:"Siena — ciudad medieval",
+desc:"Piazza del Campo, Duomo con pavimento de mosaico único descubierto en verano, y las contrade medievales.",
+stats:[{ic:"🚶",txt:"A pie"},{ic:"⏱️",txt:"Sin coche"},{ic:"🌙",txt:"Siena"}],ztl:true,ztlInfo:"ZTL Siena — activa 24h/7 días. Zona Y histórica (Il Campo y calles principales): prohibición permanente absoluta. Coche en parking Il Campo, Santa Caterina o Stadio y entrar a pie.",
+itin:[
+  {ic:"🏟️",bg:"ic-green",name:"Piazza del Campo + Torre del Mangia",note:"La plaza medieval más bella de Italia. Torre del Mangia: 400 peldaños, vistas extraordinarias.",tags:["imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Piazza_del_Campo",type:"wiki"},{label:"🎟️ Torre del Mangia",url:"https://www.comune.siena.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Piazza+del+Campo+Siena"},{label:"📄 Guía Siena",url:"SIENA.pdf",type:""}]},
+  {ic:"⛪",bg:"ic-blue",name:"Duomo de Siena — OPA SI PASS",note:"Pavimento de mosaico descubierto agosto-septiembre. OPA SI PASS acceso completo (~20€).",tags:["OPA SI PASS","pavimento descubierto"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Catedral_de_Siena",type:"wiki"},{label:"🎟️ OPA SI PASS",url:"https://operaduomo.siena.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Duomo+di+Siena"}]},
+  {ic:"🚶",bg:"ic-gray",name:"Las Contrade",note:"Los 17 barrios históricos con sus símbolos. Medieval auténtico.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Palio_de_Siena",type:"wiki"},{label:"🗺️ Maps Siena",url:"https://maps.google.com/?q=Centro+storico+Siena"}]}
+],
+route:{total:"A pie · toda la jornada",steps:[
+  {city:"Hotel Executive",detail:"5 min a pie del centro",km:null,wp:false,end:false},
+  {city:"Piazza del Campo",detail:"Centro neurálgico",km:"5 min",wp:false,end:false},
+  {city:"Duomo di Siena",detail:"10 min andando desde Campo",km:"10 min",wp:true,end:true}
+]},
+hotel:{name:"Hotel Executive",stars:"★★★★",city:"Siena",address:"Via Nazareno Orlandi, 32 · 53100 Siena",phone:"+39 0577 331210",maps:"https://maps.google.com/?q=Hotel+Executive+Via+Nazareno+Orlandi+32+Siena",noches:"Noche 2/4",precio:"1.238 € total",rows:[{ic:"🍳",txt:"Desayuno incluido"}],warn:null},
+restaurant:null,weather:{city:"Siena",mb:"https://www.meteoblue.com/es/tiempo/semana/siena_italia_3167022"}},
+
+{n:10,wd:"Dom",date:"26 jul",city:"Crete Senesi",emoji:"🌄",title:"Crete Senesi · Val d'Orcia",
+desc:"Ruta circular panorámica por las Crete Senesi, Val d'Orcia y la Maremma. Paisajes lunares, abadías medievales y el Brunello de Montalcino.",
+stats:[{ic:"🚗",txt:"~280 km circular"},{ic:"⏱️",txt:"Todo el día"},{ic:"🌙",txt:"Siena"}],ztl:true,ztlInfo:"ZTL Siena — activa 24h/7 días (para la salida y vuelta). ZTL Pienza — acceso restringido al centro, aparcar en parking fuera de las murallas. Montepulciano: parking Tempio di San Biagio o fuera de las murallas.",
+itin:[
+  {ic:"🌾",bg:"ic-green",name:"Crete Senesi · Asciano · Baccoleno",note:"Salida por Taverne d'Arbia y Vescona hacia Asciano. El Agriturismo Baccoleno tiene el paisaje de arcilla más fotogénico de las Crete. Chiusure: pequeño pueblo en lo alto con vistas panorámicas.",tags:["foto icónica","carretera panorámica"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Crete_Senesi",type:"wiki"},{label:"🗺️ Maps Baccoleno",url:"https://maps.google.com/?q=Agriturismo+Baccoleno+Asciano"},{label:"📄 Guía Val d'Orcia y Crete Senesi",url:"VALD_D_ORCIA_Y_CRETE_SENESI.pdf",type:""},{label:"🗺️ Mapa Ruta Crete Senesi",url:"https://maps.app.goo.gl/eJnPLhs3Lx1DGR6TA",type:"maps"}]},
+  {ic:"⛪",bg:"ic-blue",name:"Abadía Monte Olivetto Maggiore",note:"Monasterio benedictino del siglo XIV enclavado entre cipreses y arcilla roja. Frescos del ciclo de la vida de San Benito de Luca Signorelli y Sodoma (uno de los conjuntos renacentistas más importantes de la Toscana).",tags:["imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Abad%C3%ADa_de_Monte_Oliveto_Maggiore",type:"wiki"},{label:"🌐 Web oficial",url:"https://www.monteolivetomaggiore.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Abbazia+Monte+Oliveto+Maggiore"}]},
+  {ic:"🏘️",bg:"ic-amber",name:"Buonconvento · Montalcino",note:"Buonconvento: pueblo medieval amurallado perfectamente conservado. Montalcino: fortaleza del siglo XIV con vistas al Val d'Orcia y cuna del Brunello DOCG.",tags:[],links:[{label:"📖 Wikipedia Montalcino",url:"https://es.wikipedia.org/wiki/Montalcino",type:"wiki"},{label:"🌐 Consorzio Brunello",url:"https://www.consorziobrunellodimontalcino.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Montalcino+Siena"}]},
+  {ic:"⛪",bg:"ic-gray",name:"Abadía de Sant'Antimo",note:"Abadía románica del siglo XII solitaria en el valle entre olivos. Los monjes cantan el gregoriano a las 17:00 — experiencia única. Imprescindible.",tags:["Gregoriano ~17:00","imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Abad%C3%ADa_de_Sant%27Antimo",type:"wiki"},{label:"🌐 Web oficial",url:"https://www.antimo.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Abbazia+Sant+Antimo+Montalcino"}]},
+  {ic:"🏰",bg:"ic-red",name:"Pitigliano",note:"Conocida como la 'Pequeña Jerusalén' por su antigua comunidad judía. Ciudad construida sobre un peñasco de tufa volcánica. Visión espectacular al llegar por la carretera.",tags:["espectacular"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Pitigliano",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Pitigliano+Grosseto"}]},
+  {ic:"🚗",bg:"ic-gray",name:"Vuelta a Siena · Monteroni d'Arbia",note:"Regreso por Monteroni d'Arbia por carreteras panorámicas.",tags:[]}
+],
+route:{total:"~280 km circular · todo por panorámicas",steps:[
+  {city:"Siena",detail:"Salida por la SP 73 hacia Taverne d'Arbia",km:null,wp:false,end:false},
+  {city:"Taverne d'Arbia · Vescona",detail:"Carreteras secundarias · inicio de las Crete",km:"20 min",wp:true,end:false},
+  {city:"Asciano",detail:"Capital de las Crete Senesi",km:"40 min",wp:true,end:false},
+  {city:"Agriturismo Baccoleno",detail:"El paisaje de arcilla más fotogénico de toda la ruta · parar aquí",km:"55 min",wp:true,end:false},
+  {city:"Chiusure",detail:"Pequeño pueblo en lo alto · vistas 360°",km:"1h 10min",wp:true,end:false},
+  {city:"Abadía Monte Olivetto Maggiore",detail:"Monasterio benedictino entre cipreses · frescos renacentistas",km:"1h 20min",wp:true,end:false},
+  {city:"Buonconvento",detail:"Pueblo medieval amurallado",km:"1h 50min",wp:true,end:false},
+  {city:"Montalcino",detail:"Fortaleza · vistas al Val d'Orcia · cuna del Brunello",km:"2h 20min",wp:true,end:false},
+  {city:"Abadía de Sant'Antimo",detail:"Románica solitaria · gregoriano ~17:00",km:"2h 50min",wp:true,end:false},
+  {city:"Pitigliano",detail:"Ciudad sobre peñasco de tufa · 'Pequeña Jerusalén'",km:"3h 50min",wp:true,end:false},
+  {city:"Monteroni d'Arbia",detail:"Carreteras panorámicas de vuelta",km:"5h 20min",wp:true,end:false},
+  {city:"Siena",detail:"Fin del recorrido circular",km:"5h 40min",wp:false,end:true}
+]},
+hotel:{name:"Hotel Executive",stars:"★★★★",city:"Siena",address:"Via Nazareno Orlandi, 32 · 53100 Siena",phone:"+39 0577 331210",maps:"https://maps.google.com/?q=Hotel+Executive+Via+Nazareno+Orlandi+32+Siena",noches:"Noche 3/4",precio:"1.238 € total",rows:[{ic:"🍳",txt:"Desayuno incluido"}],warn:null},
+restaurant:null,weather:{city:"Val d'Orcia",mb:"https://www.meteoblue.com/es/tiempo/semana/pienza_italia_3170129"}},
+
+{n:11,wd:"Lun",date:"27 jul",city:"Val d'Orcia",emoji:"🌄",title:"Val d'Orcia · SP146 · Montepulciano",
+desc:"La ruta más espectacular del Val d'Orcia: la Chapel Vitaleta, los cipreses de Montichiello, Pienza, Montepulciano, la Foce y los Bagni San Filippo. Todo por carreteras panorámicas.",
+stats:[{ic:"🚗",txt:"~300 km circular"},{ic:"⏱️",txt:"Todo el día"},{ic:"🌙",txt:"Siena"}],ztl:true,ztlInfo:"ZTL Siena — activa 24h/7 días (para la salida y vuelta). ZTL Montepulciano (si se visita): parking Tempio di San Biagio o fuera de las murallas. Pitigliano y Pienza: aparcar fuera del centro histórico.",
+itin:[
+  {ic:"🌄",bg:"ic-green",name:"SP146 · Chapel Vitaleta",note:"Salida hacia San Quirico d'Orcia por la SP146, la carretera más fotografiada de la Toscana. La Chapel Vitaleta — pequeña capilla solitaria flanqueada de cipreses — es una de las imágenes más icónicas del Val d'Orcia.",tags:["foto más icónica del Val d'Orcia","carretera panorámica"],links:[{label:"🌐 Chapel Vitaleta",url:"https://valdorcia.it/schede/cappella-della-vitaleta/",type:""},{label:"🗺️ Maps Vitaleta",url:"https://maps.google.com/?q=Cappella+Madonna+di+Vitaleta+San+Quirico"},{label:"🗺️ Ruta SP146",url:"https://maps.google.com/?q=SP146+San+Quirico+d+Orcia+Pienza",type:"maps"},{label:"📄 Guía Val d'Orcia y Crete Senesi",url:"VALD_D_ORCIA_Y_CRETE_SENESI.pdf",type:""},{label:"🗺️ Ruta1 D'Orcia",url:"https://maps.app.goo.gl/djc8xEEyNygJKsSK8",type:"maps"},{label:"🗺️ Ruta2 D'Orcia",url:"https://maps.app.goo.gl/g2CcBof7HbFdDt1z5",type:"maps"}]},
+  {ic:"🏘️",bg:"ic-blue",name:"Pienza · Mirador de Pienza",note:"Ciudad renacentista 'ideal' del papa Pío II. El mirador detrás de la catedral ofrece la vista más impresionante sobre el Val d'Orcia. Pecorino di Pienza DOP en las tiendas del centro.",tags:["Patrimonio UNESCO","mirador imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Pienza",type:"wiki"},{label:"🌐 Turismo Pienza",url:"https://www.pienza.info/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Pienza+Siena"}]},
+  {ic:"📍",bg:"ic-amber",name:"Montichiello · Cipreses y Mirador del Pupi",note:"Pueblo medieval en lo alto con vistas al valle. El punto panorámico de los cipreses de Montichiello es uno de los más espectaculares de toda la zona. Farmhouse Terre di Nano y el Mirador del Pupi — dos paradas para las mejores fotos de cipreses en colina.",tags:["foto icónica","parada obligatoria"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Monticchiello",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Monticchiello+Pienza"}]},
+  {ic:"🏰",bg:"ic-green",name:"Montepulciano",note:"Ciudad renacentista en lo alto de una colina, cuna del Vino Nobile DOCG. Piazza Grande con el Duomo. Enotecas en las cantinas subterráneas excavadas en el tufo. Agriturismo Lucciola Bella en el camino.",tags:["Vino Nobile DOCG"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Montepulciano",type:"wiki"},{label:"🌐 Turismo oficial",url:"https://www.prolocomontepulciano.it/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Montepulciano+Siena"}]},
+  {ic:"🌿",bg:"ic-blue",name:"De la Foce a Radicofani",note:"La Foce: jardín histórico del escritor Iris Origo con cipreses centenarios y vistas legendarias al Val d'Orcia (visita con reserva). Radicofani: fortaleza medieval sobre roca volcánica con vistas de 360° hasta el Mediterráneo.",tags:["vista hasta el Mediterráneo"],links:[{label:"🌐 Villa La Foce",url:"https://www.lafoce.com/",type:""},{label:"📖 Wikipedia Radicofani",url:"https://es.wikipedia.org/wiki/Radicofani",type:"wiki"},{label:"🗺️ Maps La Foce",url:"https://maps.google.com/?q=La+Foce+Chianciano+Terme"}]},
+  {ic:"♨️",bg:"ic-amber",name:"Bagni San Filippo",note:"Cascadas y pozas de agua termal caliente (48°C) en plena naturaleza, completamente gratuitas. La 'Balena Bianca' — enorme formación calcárea blanca en el río. Ideal para un baño relajante a media tarde.",tags:["gratuito","baño termal"],links:[{label:"📖 Wikipedia",url:"https://it.wikipedia.org/wiki/Bagni_San_Filippo",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Bagni+San+Filippo+Castiglione+d+Orcia"}]},
+  {ic:"🏘️",bg:"ic-gray",name:"Castiglione d'Orcia · Bagno Vignoni",note:"Castiglione d'Orcia: castillo medieval con vistas al Monte Amiata. Bagno Vignoni: el pueblo cuya plaza central es una gran piscina termal romana del siglo XVI.",tags:[],links:[{label:"📖 Wikipedia Bagno Vignoni",url:"https://es.wikipedia.org/wiki/Bagno_Vignoni",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Bagno+Vignoni"}]},
+  {ic:"🚗",bg:"ic-gray",name:"Vuelta a Siena · última noche",note:"Regreso por carreteras panorámicas. Mañana: check-out del Hotel Executive.",tags:["mañana check-out"]}
+],
+route:{total:"~300 km circular · todo panorámicas",steps:[
+  {city:"Siena",detail:"SP146 dirección San Quirico d'Orcia",km:null,wp:false,end:false},
+  {city:"San Quirico d'Orcia",detail:"Entrada a la SP146 panorámica",km:"30 min",wp:true,end:false},
+  {city:"Chapel Vitaleta",detail:"La capilla más fotografiada de la Toscana · parar aquí",km:"45 min",wp:true,end:false},
+  {city:"Pienza · Mirador",detail:"Ciudad renacentista + mirador al Val d'Orcia",km:"1h",wp:true,end:false},
+  {city:"Montichiello",detail:"Cipreses · punto panorámico · Mirador del Pupi",km:"1h 20min",wp:true,end:false},
+  {city:"Farmhouse Terre di Nano",detail:"Finca con vistas panorámicas a los cipreses",km:"1h 30min",wp:true,end:false},
+  {city:"Montepulciano",detail:"Ciudad renacentista · Vino Nobile · Lucciola Bella",km:"2h",wp:true,end:false},
+  {city:"La Foce",detail:"Jardín histórico de Iris Origo · reservar visita",km:"2h 40min",wp:true,end:false},
+  {city:"Radicofani",detail:"Fortaleza volcánica · vistas hasta el Mediterráneo",km:"3h 10min",wp:true,end:false},
+  {city:"Bagni San Filippo",detail:"Pozas termales gratuitas · la Balena Bianca",km:"3h 40min",wp:true,end:false},
+  {city:"Castiglione d'Orcia",detail:"Castillo medieval · Monte Amiata",km:"4h 10min",wp:true,end:false},
+  {city:"Bagno Vignoni",detail:"Plaza termal romana del siglo XVI",km:"4h 30min",wp:true,end:false},
+  {city:"Siena",detail:"Vuelta · última noche · mañana check-out",km:"5h 10min",wp:false,end:true}
+]},
+hotel:{name:"Hotel Executive",stars:"★★★★",city:"Siena",address:"Via Nazareno Orlandi, 32 · 53100 Siena",phone:"+39 0577 331210",maps:"https://maps.google.com/?q=Hotel+Executive+Via+Nazareno+Orlandi+32+Siena",noches:"Noche 4/4",precio:"1.238 € total",rows:[{ic:"🍳",txt:"Desayuno incluido · Mañana: check-out"}],warn:null},
+restaurant:null,weather:{city:"Val d'Orcia",mb:"https://www.meteoblue.com/es/tiempo/semana/pienza_italia_3170129"}},
+
+{n:12,wd:"Mar",date:"28 jul",city:"Menton",emoji:"🌲",title:"Garfagnana → Menton",
+desc:"Valle verde de montaña. Borgo a Mozzano · Barga · Lunigiana. Noche en Menton.",
+stats:[{ic:"🚗",txt:"520 km"},{ic:"⏱️",txt:"7h 30min"},{ic:"🌙",txt:"Menton"}],ztl:false,
+itin:[
+  {ic:"🌉",bg:"ic-green",name:"Borgo a Mozzano — Puente del Diablo",note:"Puente medieval de un solo arco sobre el río Serchio. Leyenda: lo construyó el diablo.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Borgo_a_Mozzano",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Borgo+a+Mozzano+Ponte+del+Diavolo"},{label:"📄 Guía Siena a Menton",url:"DE_SIENA_A_MENTON.pdf",type:""},{label:"🗺️ Ruta Siena a Menton",url:"https://maps.app.goo.gl/CeTu9ygF9YbyRKni7",type:"maps"}]},
+  {ic:"⛰️",bg:"ic-blue",name:"Barga",note:"Pueblo medieval en lo alto con vistas a los Alpes Apuanos. Catedral románica.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Barga",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Barga+Lucca+Italy"}]},
+  {ic:"🍋",bg:"ic-amber",name:"Llegada a Menton",note:"La perla de la Riviera. La ciudad más cítrica de Europa. Casco antiguo muy fotogénico.",tags:[]}
+],
+route:{total:"520 km · 7h 30min",steps:[
+  {city:"Siena (check-out)",detail:"A11 dirección Lucca",km:null,wp:false,end:false},
+  {city:"Borgo a Mozzano",detail:"Puente del Diablo · 10 min de desvío",km:"2h",wp:true,end:false},
+  {city:"Barga · Garfagnana",detail:"Parada 45 min",km:"2h 30min",wp:true,end:false},
+  {city:"Génova (circunvalación)",detail:"A7/A10 · no parar",km:"4h 30min",wp:false,end:false},
+  {city:"Menton — Ibis Style",detail:"Centro · Parking del hotel",km:"7h 30min",wp:false,end:true}
+]},
+hotel:{name:"Ibis Style Menton Centre",stars:"★★★",city:"Menton, Francia",noches:"1 noche",precio:"513 €",
+  rows:[{ic:"🛏️",txt:"2 hab. doble con balcón · 2 camas"},{ic:"🅿️",txt:"Parking concedido — modelo enviado"},{ic:"🍳",txt:"Desayuno incluido"},{ic:"📅",txt:"Cancelación: hasta 25 julio 2026"}],warn:"Habitaciones juntas solicitadas. Ascensor y AA confirmados."},
+restaurant:null,weather:{city:"Menton",mb:"https://www.meteoblue.com/es/tiempo/semana/menton_francia_2994694"}},
+
+{n:13,wd:"Mié",date:"29 jul",city:"Costa Azul · Menton",emoji:"🌊",title:"Basse Corniche — Costa Azul",
+desc:"La carretera más espectacular de la Costa Azul bordeando el Mediterráneo. Mónaco · Èze · Cap Ferrat · Villefranche · Niza. Vuelta a Menton a dormir.",
+stats:[{ic:"🚗",txt:"~130 km circular"},{ic:"🌊",txt:"Basse Corniche"},{ic:"🌙",txt:"Menton — 2ª noche"}],ztl:false,
+itin:[
+  {ic:"🎰",bg:"ic-blue",name:"Mónaco",note:"Basse Corniche D6098. Puerto Hércules, Casino del Principado.",tags:["parada 1h"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/M%C3%B3naco",type:"wiki"},{label:"🌐 Turismo",url:"https://www.visitmonaco.com/es",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Monaco"},{label:"🗺️ Ruta Baja Corniche",url:"https://maps.app.goo.gl/YuiJtXE5bYiCgCo7A",type:"maps"},{label:"📄 Menton y Basse Corniche",url:"MENTON_Y_BASSE_CORNICHE.pdf",type:""}]},
+  {ic:"🦅",bg:"ic-green",name:"Èze — pueblo medieval (430m)",note:"Jardín Exótico con vistas de 360°. Llegar antes de las 10:00 en julio.",tags:["imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/%C3%88ze",type:"wiki"},{label:"🌐 Jardín Exótico",url:"https://www.jardin-exotique-eze.fr/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Eze+Village+France"}]},
+  {ic:"🌊",bg:"ic-amber",name:"Cap Ferrat + Villefranche sur Mer",note:"Península exclusiva de la Costa Azul. Almuerzo en Villefranche: mejor pescado.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Saint-Jean-Cap-Ferrat",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Saint+Jean+Cap+Ferrat+France"}]},
+  {ic:"🏖️",bg:"ic-gray",name:"Niza · Promenade des Anglais",note:"A8 → AP-7 desde aquí hacia España.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Niza",type:"wiki"},{label:"🌐 Turismo Niza",url:"https://en.nicetourisme.com/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Promenade+des+Anglais+Nice"}]}
+],
+route:{total:"~130 km circular",steps:[
+  {city:"Menton",detail:"D6098 Basse Corniche dirección Niza",km:null,wp:false,end:false},
+  {city:"Mónaco",detail:"Puerto Hércules · paseo",km:"20 min",wp:true,end:false},
+  {city:"Èze Village",detail:"Pueblo medieval (430m)",km:"35 min",wp:true,end:false},
+  {city:"Cap Ferrat + Villefranche",detail:"Puerto · almuerzo",km:"50 min",wp:true,end:false},
+  {city:"Niza",detail:"Promenade des Anglais",km:"1h",wp:true,end:false},
+  {city:"Menton — hotel",detail:"Vuelta por Basse Corniche",km:"1h 30min",wp:false,end:true}
+]},
+hotel:{name:"Ibis Styles Menton Centre",stars:"★★★",city:"Menton",address:"10 Rue Villarey · 06500 Menton",phone:"+33 4 92 10 95 25",maps:"https://maps.google.com/?q=Ibis+Styles+Menton+Centre+10+Rue+Villarey",noches:"2ª noche",precio:"513 € total",
+  rows:[{ic:"🛏️",txt:"Habitaciones contiguas solicitadas"},{ic:"📅",txt:"Cancelación: hasta 25 julio 2026"}],warn:null},
+restaurant:null,weather:{city:"Menton",mb:"https://www.meteoblue.com/es/tiempo/semana/menton_france_2994729"}},
+
+{n:14,wd:"Jue",date:"30 jul",city:"Verdon · Girona",emoji:"🏞️",title:"Menton → Gargantas del Verdon → Girona",
+desc:"De la Costa Azul al interior: las espectaculares Gargantas del Verdon, el Gran Cañón europeo. Luego autopista a Girona.",
+stats:[{ic:"🚗",txt:"~560 km"},{ic:"⏱️",txt:"~6h"},{ic:"🌙",txt:"Girona — base 2n"}],ztl:false,
+itin:[
+  {ic:"🚗",bg:"ic-gray",name:"Menton → Gargantas del Verdon",note:"A8 dirección Cannes · Aix-en-Provence. Luego D952 hacia las gargantas. Aprox. 2h 30min desde Menton.",tags:[],links:[{label:"🗺️ Maps ruta",url:"https://maps.google.com/?saddr=Menton&daddr=Gorges+du+Verdon",type:"maps"}]},
+  {ic:"🏞️",bg:"ic-green",name:"Gorges du Verdon — Gran Cañón europeo",note:"El cañón más espectacular de Europa: 25 km de longitud, paredes de hasta 700m de altura y el río Verdon de color turquesa en el fondo. La Route des Crêtes (D23) ofrece los miradores más espectaculares. Paradas en Point Sublime y Belvédère de l'Escalès.",tags:["imprescindible","paisaje único"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Gargantas_del_Verdon",type:"wiki"},{label:"🗺️ Maps Verdon",url:"https://maps.google.com/?q=Gorges+du+Verdon+France"},{label:"🗺️ Ruta Gargantas del Verdon",url:"https://maps.app.goo.gl/VGXv9uxWjppM94Dt8",type:"maps"},{label:"📄 Guía Gargantas del Verdon",url:"Gargantas_del_Verdon.pdf",type:""}]},
+  {ic:"🌊",bg:"ic-blue",name:"Lac de Sainte-Croix",note:"El lago artificial al pie de las gargantas, de un azul turquesa extraordinario. Vista icónica donde el río Verdon desemboca en el lago. Parada fotográfica imprescindible.",tags:["foto icónica"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Lago_de_Sainte-Croix",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Lac+de+Sainte-Croix+Verdon+France"}]},
+  {ic:"🚗",bg:"ic-gray",name:"Verdon → Girona",note:"A51 dirección Aix-en-Provence · A8 · AP-7. Cruzar frontera por La Junquera. Aprox. 3h 30min.",tags:[],links:[{label:"🗺️ Maps ruta",url:"https://maps.google.com/?saddr=Gorges+du+Verdon&daddr=Girona",type:"maps"}]}
+],
+route:{total:"~560 km · ~6h",steps:[
+  {city:"Menton",detail:"A8 dirección Cannes · Aix-en-Provence",km:null,wp:false,end:false},
+  {city:"Gorges du Verdon",detail:"D952 · Route des Crêtes (D23) · miradores",km:"2h 30min",wp:true,end:false},
+  {city:"Lac de Sainte-Croix",detail:"Vista turquesa del lago al pie del cañón",km:"3h",wp:true,end:false},
+  {city:"A51 / A8 / AP-7",detail:"Dirección Aix · frontera La Junquera",km:"3h 30min",wp:false,end:false},
+  {city:"Girona — Hotel Gran Ultonia",detail:"Gran Vía de Jaume I, 22",km:"~6h",wp:false,end:true}
+]},
+hotel:{name:"Hotel Gran Ultonia",stars:"★★★★",city:"Girona",address:"Gran Via Jaume I, 22 · 17001 Girona",phone:"+34 972 203 850",maps:"https://maps.google.com/?q=Hotel+Gran+Ultonia+Gran+Via+Jaume+I+22+Girona",noches:"Noche 1/2",precio:"770 € total",
+  rows:[{ic:"📋",txt:"Reserva nº 6185733348"},{ic:"🛏️",txt:"3 hab. doble · habitaciones contiguas solicitadas"},{ic:"🅿️",txt:"Parking reservado con el hotel"},{ic:"🍳",txt:"Sin desayuno"},{ic:"📅",txt:"Cancelación: hasta 25 julio 2026"}],warn:null},
+restaurant:null,weather:{city:"Verdon · Girona",mb:"https://www.meteoblue.com/es/tiempo/semana/moustiers-sainte-marie_france_2992112"}},
+
+{n:15,wd:"Jue",date:"30 jul",city:"Girona",emoji:"🏛️",title:"Girona — día libre",
+desc:"Catedral · Call judío · casas del Onyar · murallas. Tarde en la Costa Brava opcional.",
+stats:[{ic:"🚶",txt:"Girona a pie"},{ic:"🏖️",txt:"Costa Brava opcional"},{ic:"🌙",txt:"Girona"}],ztl:false,
+itin:[
+  {ic:"⛪",bg:"ic-green",name:"Catedral de Girona",note:"Nave gótica más ancha del mundo (23m). 90 peldaños con vistas a los tejados. Game of Thrones.",tags:["imprescindible"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Catedral_de_Girona",type:"wiki"},{label:"🌐 Web oficial",url:"https://www.catedraldegirona.cat/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Catedral+de+Girona"},{label:"📄 Guía Girona",url:"GIRONA.pdf",type:""}]},
+  {ic:"🕍",bg:"ic-blue",name:"El Call — Barrio Judío",note:"Una de las comunidades judías medievales mejor conservadas de Europa.",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Barrio_jud%C3%ADo_de_Girona",type:"wiki"},{label:"🌐 Museu Historia",url:"https://www.girona.cat/call/",type:""},{label:"🗺️ Maps",url:"https://maps.google.com/?q=El+Call+Girona"}]},
+  {ic:"🌉",bg:"ic-amber",name:"Casas del Onyar",note:"Las casas de colores sobre el río. Vista desde el Pont de les Peixateries Velles (Eiffel).",tags:[],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Casas_del_Onyar",type:"wiki"},{label:"🗺️ Maps",url:"https://maps.google.com/?q=Casas+del+Onyar+Girona"}]},
+  {ic:"🏖️",bg:"ic-gray",name:"Costa Brava (tarde, opcional)",note:"Calella de Palafrugell o Begur a 45 min. Calas de agua transparente para el último baño.",tags:["opcional","45 min"],links:[{label:"📖 Wikipedia",url:"https://es.wikipedia.org/wiki/Costa_Brava",type:"wiki"},{label:"🌐 Turismo Costa Brava",url:"https://www.costabrava.org/",type:""},{label:"🗺️ Maps Calella",url:"https://maps.google.com/?q=Calella+de+Palafrugell"}]}
+],
+route:{total:"A pie · Girona centro",steps:[
+  {city:"Hotel Gran Ultonia",detail:"10 min al centro a pie",km:null,wp:false,end:false},
+  {city:"Catedral de Girona",detail:"Subida 90 peldaños",km:"10 min",wp:false,end:false},
+  {city:"El Call (Barrio Judío)",detail:"Junto a la catedral",km:"5 min",wp:true,end:false},
+  {city:"Casas del Onyar",detail:"Vista clásica de Girona",km:"10 min",wp:false,end:true}
+]},
+hotel:{name:"Hotel Gran Ultonia",stars:"★★★★",city:"Girona",address:"Gran Via Jaume I, 22 · 17001 Girona",phone:"+34 972 203 850",maps:"https://maps.google.com/?q=Hotel+Gran+Ultonia+Gran+Via+Jaume+I+22+Girona",noches:"Noche 2/2",precio:"770 € total",rows:[{ic:"📞",txt:"972 20 38 50 · info@hotelsultoniagirona.com"},{ic:"🍳",txt:"Sin desayuno · Mañana: check-out"}],warn:null},
+restaurant:null,weather:{city:"Girona",mb:"https://www.meteoblue.com/es/tiempo/semana/gerona_espa%C3%B1a_3121580"}},
+
+{n:16,wd:"Vie",date:"31 jul",city:"Madrid",emoji:"🏠",title:"Girona → Madrid",
+desc:"Último día. 695 km de vuelta a casa. Fin de 16 días y ~3.700 km de aventura familiar.",
+stats:[{ic:"🚗",txt:"695 km"},{ic:"⏱️",txt:"~7h"},{ic:"🏠",txt:"Casa"}],ztl:false,
+itin:[
+  {ic:"🚗",bg:"ic-gray",name:"Girona → Madrid",note:"AP-7 dirección Barcelona. Luego A-2/AP-2. Parada en Zaragoza para almorzar.",tags:[]},
+  {ic:"🏠",bg:"ic-green",name:"Llegada a Madrid",note:"¡Fin del viaje! 15 noches · 7 ciudades · ~3.700 km · recuerdos para siempre.",tags:["🎉 fin del viaje"]}
+],
+route:{total:"695 km · ~7h",steps:[
+  {city:"Girona",detail:"AP-7 dirección Barcelona",km:null,wp:false,end:false},
+  {city:"Zaragoza (km 350)",detail:"Parada almuerzo · A-2",km:"3h 30min",wp:true,end:false},
+  {city:"Madrid 🏠",detail:"Fin del viaje",km:"~7h",wp:false,end:true}
+]},
+hotel:null,restaurant:null,weather:{city:"Madrid",mb:"https://www.meteoblue.com/es/tiempo/semana/madrid_espa%C3%B1a_3117735"}}
+];
+
+// ── HOME TABS ──
+let activeTab='overview';
+function homeTab(tab,btn){
+  document.getElementById('tab-'+activeTab).style.display='none';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  activeTab=tab;
+  document.getElementById('tab-'+tab).style.display='block';
+  btn.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── DAY GRID ──
+const EMOJIS=["🏙️","🏛️","🌊","🗼","⛰️","🏰","🎨","🍷","🏛️","🌄","🌄","🌲","🌊","🏞️","🏛️","🏠"];
+function buildDayGrid(){
+  const g=document.getElementById('dayGrid');
+  DAYS.forEach((d,i)=>{
+    const c=document.createElement('div');
+    c.className='day-cell';
+    c.innerHTML=`<span class="dc-num">${d.n}</span><span class="dc-wd">${d.wd} · ${d.date}</span><span class="dc-emoji">${d.emoji}</span><span class="dc-city">${d.city}</span>`;
+    c.onclick=()=>openDay(i);
+    g.appendChild(c);
+  });
+}
+
+// ── OPEN / CLOSE DAY ──
+let currentDay=0;
+function openDay(i){
+  currentDay=i;
+  renderDayPage(i);
+  document.getElementById('screen-home').classList.remove('active');
+  document.getElementById('screen-day').classList.add('active');
+  window.scrollTo({top:0,behavior:'auto'});
+}
+function goHome(){
+  document.getElementById('screen-day').classList.remove('active');
+  document.getElementById('screen-home').classList.add('active');
+  window.scrollTo({top:0,behavior:'auto'});
+}
+function stepDay(dir){
+  const n=currentDay+dir;
+  if(n>=0&&n<DAYS.length){currentDay=n;renderDayPage(n);window.scrollTo({top:0,behavior:'auto'});}
+}
+
+function renderDayPage(i){
+  const d=DAYS[i];
+  // topbar
+  document.getElementById('day-topbar-title').textContent=`Día ${d.n} · ${d.wd} ${d.date} · ${d.city}`;
+  document.getElementById('dna-prev').disabled=i===0;
+  document.getElementById('dna-next').disabled=i===DAYS.length-1;
+
+  let h='';
+
+  // Banner
+  h+=`<div class="summary-banner">
+    <div class="sb-top"><span class="sb-dn">Día ${d.n}</span><span class="sb-dt">${d.wd} ${d.date}</span></div>
+    <div class="sb-title">${d.emoji} ${d.title}</div>
+    <div class="sb-desc">${d.desc}</div>
+    <div class="sb-stats">${d.stats.map(s=>`<div class="sb-stat"><span class="sb-stat-ic">${s.ic}</span><span class="sb-stat-tx">${s.txt}</span></div>`).join('')}</div>
+  </div>`;
+
+  // ZTL
+  if(d.ztl||d.ztlInfo){const ztlMsg=d.ztlInfo||'Cámaras automáticas con multa. Aparcar en parkings exteriores y entrar a pie.';h+=`<div class="ztl"><div class="ztl-ic">⚠️</div><div class="ztl-body"><div class="ztl-title">Zona ZTL — no entrar con coche al centro</div>${ztlMsg}</div></div>`;}
+
+  // Itinerary
+  h+=`<div class="sec">Qué hacer</div><div class="itin-card">`;
+  d.itin.forEach(it=>{
+    const tags=it.tags.map(t=>`<span class="tag ${t.includes('imprescindible')||t.includes('importante')?'tg':t.includes('reservar')||t.includes('⚠️')?'tr':t.includes('opcional')?'ta':'tb'}">${t}</span>`).join('');
+    const links=it.links?it.links.map(l=>`<a class="lnk ${l.type||''}" href="${l.url}" target="_blank">${l.label}</a>`).join(''):'';
+    h+=`<div class="itin-item"><div class="itin-ic ${it.bg}">${it.ic}</div><div><div class="itin-name">${it.name}</div><div class="itin-note">${it.note}</div>${tags?`<div class="tags">${tags}</div>`:''}${links?`<div class="links">${links}</div>`:''}</div></div>`;
+  });
+  h+=`</div>`;
+
+  // Route
+  h+=`<div class="sec">Ruta y distancias</div><div class="route-card">
+    <div class="route-hdr"><span class="route-hdr-l">🗺️ Recorrido del día</span><span class="route-hdr-r">${d.route.total}</span></div>
+    <div class="route-steps">`;
+  d.route.steps.forEach((s,idx)=>{
+    const last=idx===d.route.steps.length-1;
+    h+=`<div class="rs"><div class="rs-line"><div class="rs-dot ${s.end?'end':s.wp?'wp':''}"></div>${!last?'<div class="rs-dash"></div>':''}</div>
+    <div class="rs-info"><div class="rs-city">${s.city}</div><div class="rs-detail">${s.detail}</div>${s.km?`<span class="rs-km">⏱ ${s.km}</span>`:''}</div></div>`;
+  });
+  h+=`</div></div>`;
+
+  // Hotel
+  if(d.hotel){
+    const haddr=d.hotel.address?`<div class="hrow">📍&nbsp; ${d.hotel.address}</div>`:'';
+    const hphone=d.hotel.phone?`<a class="hrow hrow-link" href="tel:${d.hotel.phone}">📞&nbsp; ${d.hotel.phone}</a>`:'';
+    const hmaps=d.hotel.maps?`<a class="hrow hrow-link maps-btn" href="${d.hotel.maps}" target="_blank">🗺️&nbsp; Ver en Google Maps</a>`:'';
+    h+=`<div class="sec">Hotel esta noche</div><div class="hotel-card">
+      <div class="hotel-head"><div><div class="hn">${d.hotel.name}</div><div class="hs">${d.hotel.stars} · ${d.hotel.city}</div></div><div class="hb">${d.hotel.noches}</div></div>
+      ${haddr}${hphone}${hmaps}
+      <div class="hotel-rows">${d.hotel.rows.map(r=>`<div class="hrow">${r.ic}&nbsp; ${r.txt}</div>`).join('')}</div>
+      ${d.hotel.warn?`<div class="hotel-warn">${d.hotel.warn}</div>`:''}
+      <div class="hotel-price"><span class="hp-l">Precio total</span><span class="hp-v">${d.hotel.precio}</span></div>
+    </div>`;
+  }
+
+  // Restaurant
+  if(d.restaurant){
+    const r=d.restaurant;
+    h+=`<div class="sec">Restaurante reservado</div><div class="rest-card">
+      <div class="rest-head"><div class="rest-eye">🍽️ Reserva de comida · 15:00</div><div class="rest-name">${r.name}</div><div class="rest-cuisine">${r.cuisine}</div><div class="rest-stars">${r.stars} <span class="rest-rating">${r.rating}</span></div></div>
+      <div class="rest-rows">${r.rows.map(row=>`<div class="rrow"><span style="flex-shrink:0;width:18px;">${row.ic}</span><span>${row.txt}</span></div>`).join('')}</div>
+      <div class="rest-note">${r.note}</div>
+      ${r.warn?`<div class="hotel-warn" style="margin:0 14px 8px;">${r.warn}</div>`:''}
+      <div class="rest-btns"><a class="rbtn solid" href="tel:+34976215366">📞 Llamar</a><a class="rbtn" href="https://maps.google.com/?q=Paseo+de+Sagasta+37+Zaragoza" target="_blank">🗺️ Maps</a></div>
+    </div>`;
+  }
+
+  // Weather
+  h+=`<a class="weather-link" href="${d.weather.mb}" target="_blank">
+    <div class="wl-ic">🌤️</div>
+    <div><div class="wl-city">${d.weather.city}</div><div class="wl-sub">Ver previsión en Meteoblue</div></div>
+    <div class="wl-arr">Ver ↗</div>
+  </a>`;
+
+  // Day navigation buttons
+  const prev = i > 0 ? DAYS[i-1] : null;
+  const next = i < DAYS.length-1 ? DAYS[i+1] : null;
+  h+=`<div class="day-nav-btns">`;
+  if(prev){
+    h+=`<button class="day-nav-btn prev" onclick="stepDay(-1)">
+      <span class="day-nav-btn-ic">‹</span>
+      <span class="day-nav-btn-txt">
+        <span class="day-nav-btn-label">Día anterior</span>
+        <span class="day-nav-btn-name">${prev.emoji} ${prev.title}</span>
+      </span>
+    </button>`;
+  } else {
+    h+=`<div style="flex:1"></div>`;
+  }
+  if(next){
+    h+=`<button class="day-nav-btn next" onclick="stepDay(1)">
+      <span class="day-nav-btn-txt">
+        <span class="day-nav-btn-label">Día siguiente</span>
+        <span class="day-nav-btn-name">${next.emoji} ${next.title}</span>
+      </span>
+      <span class="day-nav-btn-ic">›</span>
+    </button>`;
+  } else {
+    h+=`<div style="flex:1"></div>`;
+  }
+  h+=`</div>`;
+
+  document.getElementById('day-body').innerHTML=h;
+}
+
+buildDayGrid();
+</script>
+</body>
+</html>
